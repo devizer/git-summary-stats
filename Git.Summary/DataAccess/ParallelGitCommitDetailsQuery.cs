@@ -67,7 +67,8 @@ namespace Git.Summary.DataAccess
                     {
                         var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Show Branch", $"{gitCommitSummary.CommitDate:yyyy-MM-dd HH-mm-ss} {gitCommitSummary.AuthorName}.Commit.Txt");
                         TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
-                        File.AppendAllText(traceFile, $"{commitInfo}");
+                        lock(string.Intern(traceFile))
+                            File.AppendAllText(traceFile, $"{commitInfo}");
                     }
 
                 }
