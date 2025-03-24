@@ -1,4 +1,4 @@
-name: Setup SQL Servers
+name: Build Git Reports
 
 on:
   workflow_dispatch:
