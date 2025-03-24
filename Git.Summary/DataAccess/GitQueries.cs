@@ -38,6 +38,12 @@ namespace Git.Summary.DataAccess
             if (ret.Commits != null)
                 ParallelGitCommitDetailsQuery.Populate(ret.Commits, gitLocalRepoFolder, ret.Errors);
 
+            if (GitTraceFiles.GitTraceFolder != null)
+            {
+                var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Full Report.json");
+                TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
+                File.WriteAllText(traceFile, ret.ToJsonString());
+            }
             return ret;
         }
 

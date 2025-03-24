@@ -40,6 +40,7 @@ namespace Git.Summary.DataAccess
                     result.DemandGenericSuccess($"Query branch for commit {gitCommitSummary.FullHash} of repo '{gitLocalRepoFolder}'");
                     var branchName = result.OutputText.Trim('\r', '\n');
                     gitCommitSummary.BranchName = branchName;
+                    Console.WriteLine($"Commit {gitCommitSummary.FullHash} Branch='{branchName}'");
                 }
 
                 Action populate = () =>
