@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace Git.Summary.DataAccess
         // Returns only .Info
         public static IDictionary<string, GitCommitSummary> Populate(this IEnumerable<string> hashCommits, string gitLocalRepoFolder, List<string> errors)
         {
-            IDictionary<string, GitCommitSummary> ret = new Dictionary<string, GitCommitSummary>(StringComparer.OrdinalIgnoreCase);
+            IDictionary<string, GitCommitSummary> ret = new ConcurrentDictionary<string, GitCommitSummary>(StringComparer.OrdinalIgnoreCase);
             object syncErrors = new object();
             var trySomething = (Action action) =>
             {
