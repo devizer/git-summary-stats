@@ -97,14 +97,15 @@ jobs:
     - name: RUN Git.Summary.Tests
       id: run
       run: |
-        $ENV:TEST_GIT_LOCAL_REPO_FOLDER = Combine-Path "$HOME" "copy";
+        $repoShortName = [System.IO.Path]::GetFileName("${{ matrix.Repo }}");
+        $ENV:TEST_GIT_LOCAL_REPO_FOLDER = Combine-Path "$HOME" "Repo-$repoShortName";
         & git clone "${{ matrix.Repo }}" "$($ENV:TEST_GIT_LOCAL_REPO_FOLDER)"
         $ENV:GIT_TRACE_FOLDER = Combine-Path "${{ github.workspace }}" "Traces"
+
+        Say "Repo Short Name: '$repoShortName'"
         Say "LOCAL REPO: '$($ENV:TEST_GIT_LOCAL_REPO_FOLDER)'"
         Say "Traces: '$($ENV:GIT_TRACE_FOLDER)'"
 
-        $repoShortName = [System.IO.Path]::GetFileName("${{ matrix.Repo }}");
-        Say "Repo Short Name: '$repoShortName'"
         echo "repo_short_name=$repoShortName" >> $GITHUB_ENV
         echo "::set-output name=artifact::$($repoShortName)"
         cd Git.Summary.Tests
@@ -115,7 +116,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: 'Summary ${{ steps.run.outputs.artifact }} on ${{ matrix.VMIMAGE }} ${{ github.run_id }} ${{ github.job }}'
+        name: '${{ github.job }} ${{ steps.run.outputs.artifact }} on ${{ matrix.VMIMAGE }} (${{ github.run_id }})'
         path: '${{ github.workspace }}'
 
 
