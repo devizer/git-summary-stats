@@ -23,7 +23,7 @@ public class GitExecutableTests
     {
         GitQueries queries = new GitQueries();
         var summary1 = queries.GetBranchCommits(GetTestGitLocalRepoFolder(), null);
-        Console.WriteLine($"Total Commits: {summary1.Count}");
+        Console.WriteLine($"Total Commits for default branch: {summary1.Count}");
 #if DEBUG
         Console.WriteLine(summary1.ToJsonString());
 #endif
@@ -34,8 +34,11 @@ public class GitExecutableTests
     {
         GitQueries queries = new GitQueries();
         var summaryFull = queries.BuildFullReport(GetTestGitLocalRepoFolder());
-        var commitsCount = summaryFull.Branches?.SelectMany(x => x.Commits).Count();
+        var totalCommits = summaryFull.Branches?.SelectMany(x => x.Commits);
+        var commitsCount = totalCommits?.Count();
+        var uniqueCommitsCount = totalCommits?.Select(x => x.FullHash).Distinct().Count();
         Console.WriteLine($"Total Commits: {commitsCount}");
+        Console.WriteLine($"Total Unique Commits: {commitsCount}");
         Console.WriteLine($"Memory Usage: {Process.GetCurrentProcess().WorkingSet64 / 1024:n0} KB");
 
 #if DEBUG
