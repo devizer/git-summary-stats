@@ -38,7 +38,7 @@ public class GitExecutableTests
         var commitsCount = totalCommits?.Count();
         var uniqueCommitsCount = totalCommits?.Select(x => x.FullHash).Distinct().Count();
         Console.WriteLine($"Total Commits: {commitsCount}");
-        Console.WriteLine($"Total Unique Commits: {commitsCount}");
+        Console.WriteLine($"Total Unique Commits: {uniqueCommitsCount}");
         Console.WriteLine($"Memory Usage: {Process.GetCurrentProcess().WorkingSet64 / 1024:n0} KB");
 
 #if DEBUG
