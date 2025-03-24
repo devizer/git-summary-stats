@@ -43,7 +43,7 @@ public class GitExecutableTests
 
         foreach (var branch in summaryFull.Branches)
         {
-            Console.WriteLine($"{branch.Commits?.Count,-12:n0} {(branch.Commits?.FirstOrDefault()?.CommitDate),-20} {branch.BranchName}");
+            Console.WriteLine($"{branch.Commits?.Count,-12:n0} {(branch.Commits?.FirstOrDefault()?.CommitDate),-30} {branch.BranchName}");
         }
 
     }
