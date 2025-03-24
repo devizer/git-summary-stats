@@ -113,7 +113,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: 'Summary ${{ env.repo_short_name }} ${{ github.run_id }}'
+        name: 'Summary ${{ env.repo_short_name }} ${{ github.run_id }} ${{ github.job }}'
         path: '${{ github.workspace }}'
 
 
