@@ -96,7 +96,7 @@ namespace Git.Summary.DataAccess
         {
             gitLocalRepoFolder = gitLocalRepoFolder.TrimEnd(Path.DirectorySeparatorChar);
             // git branch --no-color --no-column --format "%(refname:lstrip=2)" -r
-            var args = "git branch --no-color --no-column --format \"%(refname:lstrip=2)\" -r > qqqqq";
+            var args = "branch --no-color --no-column --format \"%(refname:lstrip=2)\" -r > qqqqq";
             var result = ExecProcessHelper.HiddenExec(GitExecutable.GetGitExecutable(), args, gitLocalRepoFolder);
             if (GitTraceFiles.GitTraceFolder != null)
             {
