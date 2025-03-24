@@ -9,7 +9,7 @@ on:
 
 defaults:
   run:
-    shell: powershell
+    shell: pwsh
 
 
 jobs:
