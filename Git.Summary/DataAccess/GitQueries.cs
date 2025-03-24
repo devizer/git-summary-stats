@@ -34,11 +34,25 @@ namespace Git.Summary.DataAccess
             };
 
             trySomething(() => ret.GitVersion = GitExecutable.GetGitVersion());
-            trySomething(() => ret.Commits = GetSummary(gitLocalRepoFolder));
             trySomething(() => ret.Branches = GetBranches(gitLocalRepoFolder));
+            if (ret.Branches != null)
+            {
+                void PopulateBranchCommits(GitBranchModel branchModel)
+                {
+                    trySomething(() => branchModel.Commits = this.GetBranchCommits(gitLocalRepoFolder, branchModel.BranchName));
+                }
+                
+                Parallel.ForEach(
+                    ret.Branches,
+                    new ParallelLinqOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount + 3 },
+                    branch => PopulateBranchCommits(branch)
+                );
+            }
 
+            /*
             if (ret.Commits != null)
                 ParallelGitCommitDetailsQuery.Populate(ret.Commits, gitLocalRepoFolder, ret.Errors);
+                */
 
             if (GitTraceFiles.GitTraceFolder != null)
             {
@@ -49,19 +63,21 @@ namespace Git.Summary.DataAccess
             return ret;
         }
 
-        public List<GitCommitSummary> GetSummary(string gitLocalRepoFolder)
+        public List<GitCommitSummary> GetBranchCommits(string gitLocalRepoFolder, string branchName)
         {
             gitLocalRepoFolder = gitLocalRepoFolder.TrimEnd(Path.DirectorySeparatorChar);
-            string args = "log --date=format:\"%a %Y-%m-%d %H:%M:%S %z\" --pretty=\"format:%H │ %cd │ %aD │ %aI │ %an │ %ae \"";
+            var b = string.IsNullOrEmpty(branchName?.Trim()) ? "" : $"{branchName} ";
+            string args = $"log {b}--date=format:\"%a %Y-%m-%d %H:%M:%S %z\" --pretty=\"format:%H │ %cd │ %aD │ %aI │ %an │ %ae \"";
             var result = ExecProcessHelper.HiddenExec(GitExecutable.GetGitExecutable(), args, gitLocalRepoFolder);
             if (GitTraceFiles.GitTraceFolder != null)
             {
-                var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Git Full Log.txt");
+                var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), $"Branch {SafeFileName.Get(branchName)}.txt");
                 TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
-                File.WriteAllText(traceFile, result.OutputText);
+                // lock(string.Intern(traceFile)
+                File.WriteAllText(traceFile, $"BRANCH '{branchName}'{Environment.NewLine}{result.OutputText}");
             }
 
-            result.DemandGenericSuccess($"Query git log for {gitLocalRepoFolder}");
+            result.DemandGenericSuccess($"Query git log for branch '{branchName}' for '{gitLocalRepoFolder}'");
             var rawRows = result.OutputText
                 .Split('\r', '\n')
                 .Select(x => x.Trim())
