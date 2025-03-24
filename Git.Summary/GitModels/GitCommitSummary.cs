@@ -21,4 +21,5 @@ public class GitCommitSummary
     public string BranchName { get; set; }
     public string AuthorName { get; set; }
     public string AuthorEmail { get; set; }
+    public string Info { get; set; }
 }

@@ -54,13 +54,29 @@ namespace Git.Summary.DataAccess
                         TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
                         File.AppendAllText(traceFile, $"{debugLogMessage}{Environment.NewLine}");
                     }
+                }
 
+                void PopulateInfo()
+                {
+                    // git show d43f2c485192294338917ce1f9897c73a6c91d06 --stat=99999,99999,99999 > ..\show2.txt
+                    var args = $"show --no-color --stat=99999,99999,99999 {gitCommitSummary.FullHash}";
+                    var result = ExecProcessHelper.HiddenExec(GitExecutable.GetGitExecutable(), args, gitLocalRepoFolder);
+                    result.DemandGenericSuccess($"Query branch for commit {gitCommitSummary.FullHash} of repo '{gitLocalRepoFolder}'");
+                    var commitInfo = result.OutputText;
+                    gitCommitSummary.Info = commitInfo;
+                    if (GitTraceFiles.GitTraceFolder != null)
+                    {
+                        var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), $"{gitCommitSummary.CommitDate:yyyy-MM-dd HH-mm-ss} {gitCommitSummary.AuthorName}.Commit.Txt");
+                        TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
+                        File.AppendAllText(traceFile, $"{commitInfo}");
+                    }
 
                 }
 
                 Action populate = () =>
                 {
                     trySomething(() => PopulateBranch());
+                    trySomething(() => PopulateInfo());
                 };
                 var task = taskFactory.StartNew(populate);
                 subTasks.Add(task);
