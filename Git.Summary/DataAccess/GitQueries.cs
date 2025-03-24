@@ -37,7 +37,7 @@ namespace Git.Summary.DataAccess
                 var rawItems = rawRow.Split('│').Select(x => x.Trim()).ToArray();
                 if (rawItems.Length < 5) continue;
                 var iso8601String = rawItems[3];
-                if (!DateTime.TryParse(iso8601String, CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind, out var commitDate))
+                if (!DateTimeOffset.TryParse(iso8601String, CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind, out var commitDate))
                 {
                     Console.WriteLine($"WARING! Unable to parse ISO-8601 date '{iso8601String}'");
                 }
