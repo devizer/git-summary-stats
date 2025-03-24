@@ -23,7 +23,7 @@ jobs:
       with:
         fetch-depth: 888888
 
-    - name: dotnet build
+    - name: BUILD Git.Summary.Tests
       shell: bash
       run: |
         set -eu; set -o pipefail
@@ -94,10 +94,10 @@ jobs:
         Say "CPU: $(Get-Cpu-Name)"
 
 
-    - name: SHOW Query Cache Report
+    - name: RUN Git.Summary.Tests
       run: |
         $ENV:TEST_GIT_LOCAL_REPO_FOLDER = Combine-Path "$HOME" "copy";
-        & git.exe clone "${{ matrix.Repo }}" "$($ENV:TEST_GIT_LOCAL_REPO_FOLDER)"
+        & git clone "${{ matrix.Repo }}" "$($ENV:TEST_GIT_LOCAL_REPO_FOLDER)"
         $ENV:GIT_TRACE_FOLDER = Combine-Path "${{ github.workspace }}" "Traces"
         Say "LOCAL REPO: '$($ENV:TEST_GIT_LOCAL_REPO_FOLDER)'"
         Say "Traces: '$($ENV:GIT_TRACE_FOLDER)'"
