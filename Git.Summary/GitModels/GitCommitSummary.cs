@@ -6,14 +6,6 @@ using System.Threading.Tasks;
 
 namespace Git.Summary.GitModels;
 
-public class GitSummaryReport
-{
-    public string LocalRepoFolder;
-    public string GitVersion;
-    public List<GitCommitSummary> Commits;
-    public List<string> Errors;
-}
-
 public class GitCommitSummary
 {
     public string FullHash { get; set; }

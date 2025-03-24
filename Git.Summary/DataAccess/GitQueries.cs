@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Git.Summary.GitModels;
@@ -34,6 +35,7 @@ namespace Git.Summary.DataAccess
 
             trySomething(() => ret.GitVersion = GitExecutable.GetGitVersion());
             trySomething(() => ret.Commits = GetSummary(gitLocalRepoFolder));
+            trySomething(() => ret.Branches = GetBranches(gitLocalRepoFolder));
 
             if (ret.Commits != null)
                 ParallelGitCommitDetailsQuery.Populate(ret.Commits, gitLocalRepoFolder, ret.Errors);
@@ -87,6 +89,35 @@ namespace Git.Summary.DataAccess
                 ret.Add(gitCommitSummary);
             }
 
+            return ret;
+        }
+
+        public List<GitBranchModel> GetBranches(string gitLocalRepoFolder)
+        {
+            gitLocalRepoFolder = gitLocalRepoFolder.TrimEnd(Path.DirectorySeparatorChar);
+            // git branch --no-color --no-column --format "%(refname:lstrip=2)" -r
+            var args = "git branch --no-color --no-column --format \"%(refname:lstrip=2)\" -r > qqqqq";
+            var result = ExecProcessHelper.HiddenExec(GitExecutable.GetGitExecutable(), args, gitLocalRepoFolder);
+            if (GitTraceFiles.GitTraceFolder != null)
+            {
+                var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Branches.txt");
+                TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
+                File.WriteAllText(traceFile, result.OutputText);
+            }
+
+            result.DemandGenericSuccess($"Query git branches for {gitLocalRepoFolder}");
+
+            var isNotHead = (string raw) =>
+            {
+                var arr = raw.Split('/');
+                return !(arr.Length == 2 && arr[1] == "HEAD");
+            };
+
+            var branchNames = result.OutputText.Split('\r', '\n')
+                .Where(x => x.Length != 0)
+                .Where(x => isNotHead(x));
+
+            List<GitBranchModel> ret = branchNames.Select(x => new GitBranchModel() { BranchName = x }).ToList();
             return ret;
         }
 
