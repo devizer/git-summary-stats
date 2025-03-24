@@ -12,14 +12,43 @@ namespace Git.Summary.DataAccess
 {
     public class GitQueries
     {
+        public GitSummaryReport BuildFullReport(string gitLocalRepoFolder)
+        {
+            gitLocalRepoFolder = gitLocalRepoFolder.TrimEnd(Path.DirectorySeparatorChar);
+            GitSummaryReport ret = new GitSummaryReport()
+            {
+                LocalRepoFolder = gitLocalRepoFolder,
+                Errors = new List<string>(),
+            };
+            var trySomething = (Action action) =>
+            {
+                try
+                {
+                    action();
+                }
+                catch (Exception ex)
+                {
+                    ret.Errors.Add(ex.GetExceptionDigest());
+                }
+            };
+
+            trySomething(() => ret.GitVersion = GitExecutable.GetGitVersion());
+            trySomething(() => ret.Commits = GetSummary(gitLocalRepoFolder));
+
+            if (ret.Commits != null)
+                ParallelGitCommitDetailsQuery.Populate(ret.Commits, gitLocalRepoFolder, ret.Errors);
+
+            return ret;
+        }
+
         public List<GitCommitSummary> GetSummary(string gitLocalRepoFolder)
         {
-            var gitLocalRepoFolderFull = Path.GetFullPath(gitLocalRepoFolder).TrimEnd(Path.DirectorySeparatorChar);
+            gitLocalRepoFolder = gitLocalRepoFolder.TrimEnd(Path.DirectorySeparatorChar);
             string args = "log --date=format:\"%a %Y-%m-%d %H:%M:%S %z\" --pretty=\"format:%H │ %cd │ %aD │ %aI │ %an │ %ae \"";
             var result = ExecProcessHelper.HiddenExec(GitExecutable.GetGitExecutable(), args, gitLocalRepoFolder);
             if (GitTraceFiles.GitTraceFolder != null)
             {
-                var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolderFull), "Git Full Log.txt");
+                var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Git Full Log.txt");
                 TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
                 File.WriteAllText(traceFile, result.OutputText);
             }
