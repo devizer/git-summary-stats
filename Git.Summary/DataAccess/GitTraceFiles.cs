@@ -14,7 +14,7 @@ namespace Git.Summary.DataAccess
         {
             var raw = Environment.GetEnvironmentVariable("GIT_TRACE_FOLDER")?.Trim();
             if (!string.IsNullOrEmpty(raw))
-                GitTraceFolder = raw;
+                GitTraceFolder = Path.GetFullPath(raw);
         }
     }
 }

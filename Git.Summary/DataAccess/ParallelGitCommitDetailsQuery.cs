@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +31,9 @@ namespace Git.Summary.DataAccess
 
             QueuedTaskScheduler scheduler = new QueuedTaskScheduler(Environment.ProcessorCount + 2);
             TaskFactory taskFactory = new TaskFactory(scheduler);
+            List<Task> subTasks = new List<Task>();
+            Stopwatch startAt = Stopwatch.StartNew();
+            int index = 0;
             foreach (GitCommitSummary gitCommitSummary in commits)
             {
                 void PopulateBranch()
@@ -40,7 +44,17 @@ namespace Git.Summary.DataAccess
                     result.DemandGenericSuccess($"Query branch for commit {gitCommitSummary.FullHash} of repo '{gitLocalRepoFolder}'");
                     var branchName = result.OutputText.Trim('\r', '\n');
                     gitCommitSummary.BranchName = branchName;
-                    Console.WriteLine($"Commit {gitCommitSummary.FullHash} Branch='{branchName}'");
+                    var debugLogMessage = $"{startAt.Elapsed} {Interlocked.Increment(ref index)} of {commits.Count()} | Commit {gitCommitSummary.FullHash} Branch='{branchName}'";
+                    Console.WriteLine(debugLogMessage);
+
+                    if (GitTraceFiles.GitTraceFolder != null)
+                    {
+                        var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Populate.log");
+                        TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
+                        File.AppendAllText(traceFile, $"{debugLogMessage}{Environment.NewLine}");
+                    }
+
+
                 }
 
                 Action populate = () =>
@@ -48,8 +62,10 @@ namespace Git.Summary.DataAccess
                     trySomething(() => PopulateBranch());
                 };
                 var task = taskFactory.StartNew(populate);
+                subTasks.Add(task);
             }
 
+            subTasks.ForEach(task => task.Wait());
         }
 
     }

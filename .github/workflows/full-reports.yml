@@ -1,0 +1,138 @@
+name: Setup SQL Servers
+
+on:
+  workflow_dispatch:
+  push:
+      branches: [ "master" ]
+  schedule:
+      - cron: "15 4 * * *"
+
+defaults:
+  run:
+    shell: powershell
+
+
+jobs:
+
+  Pre-Build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 888888
+
+    - name: dotnet build
+      shell: bash
+      run: |
+        set -eu; set -o pipefail
+        script=https://raw.githubusercontent.com/devizer/test-and-build/master/install-build-tools-bundle.sh; (wget -q -nv --no-check-certificate -O - $script 2>/dev/null || curl -ksSL $script) | bash >/dev/null
+        Say --Reset-Stopwatch
+        Say "CPU: $(Get-CpuName)"
+        
+        Say "Build fx-dependent Tests"
+        cd Git.Summary.Tests
+        try-and-retry dotnet restore
+        try-and-retry dotnet build -c Release -d net8.0 -o "${{ github.workspace }}/bin/Git.Summary.Tests"
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: 'Binaries'
+        path: bin
+        # path: "${{ runner.temp }}/Artifacts/**/**"
+          
+  
+  Setup:
+
+    timeout-minutes: 45
+    needs: Pre-Build
+    strategy:
+      fail-fast: false
+      matrix:
+        Repo: [
+           'https://github.com/dotnet/efcore',
+           'https://github.com/devizer/Universe.CpuUsage',
+           'https://github.com/nunit/nunit'
+        ]
+        VMIMAGE: [
+           'windows-latest',
+           'macos-15',
+           'ubuntu-latest'
+        ]
+
+    runs-on: ${{ matrix.VMIMAGE }}
+
+    env:
+      PS1_TROUBLE_SHOOT: On
+
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 888888
+
+    - name: Download Pre-Build artifacts
+      uses: actions/download-artifact@v4
+      with:
+         path: '${{ github.workspace }}'
+         merge-multiple: true # just one artifact
+         name: Binaries
+
+
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Measure Install-Module
+      if: ${{ true }}
+      run: |
+        iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/devizer/Universe.SqlServerJam/master/SqlServer-Version-Management/SqlServer-Version-Management.ps1'))
+        Say "CPU: $(Get-Cpu-Name)"
+
+
+    - name: SHOW Query Cache Report
+      run: |
+        $ENV:TEST_GIT_LOCAL_REPO_FOLDER = Combine-Path "$HOME" "copy";
+        & git.exe clone "${{ matrix.Repo }}" "$($ENV:TEST_GIT_LOCAL_REPO_FOLDER)"
+        $ENV:GIT_TRACE_FOLDER = Combine-Path "${{ github.workspace }}" "Traces"
+        Say "LOCAL REPO: '$($ENV:TEST_GIT_LOCAL_REPO_FOLDER)'"
+        Say "Traces: '$($ENV:GIT_TRACE_FOLDER)'"
+
+        cd Git.Summary.Tests
+        dotnet test Git.Summary.Tests.dll
+
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: 'Summary ${{ matrix.Repo }}'
+        # path: C:\Artifacts
+          
+
+
+          
+  Combine:
+    runs-on: windows-latest
+    needs: Setup
+    if: always()
+    timeout-minutes: 15
+    steps:
+
+    - name: Download all workflow run artifacts
+      uses: actions/download-artifact@v4
+      with:
+         path: 'C:\Artifacts'
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: 'Combined'
+        path: |
+          C:\Artifacts
+

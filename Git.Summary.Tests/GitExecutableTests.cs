@@ -20,18 +20,24 @@ public class GitExecutableTests
     [TestCase("Next")]
     public void TestRawSummary(string testCase)
     {
-        GitTraceFiles.GitTraceFolder = "W:\\Temp\\Git Traces";
         GitQueries queries = new GitQueries();
-        var summary1 = queries.GetSummary("W:\\Temp\\efcore\\");
+        var summary1 = queries.GetSummary(GetTestGitLocalRepoFolder());
         Console.WriteLine(summary1.ToJsonString());
     }
 
     [Test]
     public void TestFullReport()
     {
-        GitTraceFiles.GitTraceFolder = "W:\\Temp\\Git Traces";
         GitQueries queries = new GitQueries();
-        var summaryFull = queries.BuildFullReport("W:\\Temp\\efcore\\");
+        var summaryFull = queries.BuildFullReport(GetTestGitLocalRepoFolder());
         Console.WriteLine(summaryFull.ToJsonString());
     }
+
+    private static string GetTestGitLocalRepoFolder()
+    {
+        var raw = Environment.GetEnvironmentVariable("TEST_GIT_LOCAL_REPO_FOLDER");
+        return raw ?? "W:\\Temp\\efcore\\";
+    }
+
+
 }
