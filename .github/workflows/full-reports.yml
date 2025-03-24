@@ -52,15 +52,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        Repo: [
-           'https://github.com/dotnet/efcore',
-           'https://github.com/devizer/Universe.CpuUsage',
-           'https://github.com/nunit/nunit'
-        ]
         VMIMAGE: [
            'windows-latest',
            'macos-15',
            'ubuntu-latest'
+        ]
+        Repo: [
+           'https://github.com/dotnet/efcore',
+           'https://github.com/devizer/Universe.CpuUsage',
+           'https://github.com/nunit/nunit'
         ]
 
     runs-on: ${{ matrix.VMIMAGE }}
