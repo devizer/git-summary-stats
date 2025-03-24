@@ -29,7 +29,8 @@ namespace Git.Summary.DataAccess
                 }
             };
 
-            QueuedTaskScheduler scheduler = new QueuedTaskScheduler(Environment.ProcessorCount + 2);
+            // QueuedTaskScheduler scheduler = new QueuedTaskScheduler(Environment.ProcessorCount + 2);
+            LimitedConcurrencyLevelTaskScheduler scheduler = new LimitedConcurrencyLevelTaskScheduler(Environment.ProcessorCount + 2);
             TaskFactory taskFactory = new TaskFactory(scheduler);
             List<Task> subTasks = new List<Task>();
             Stopwatch startAt = Stopwatch.StartNew();
