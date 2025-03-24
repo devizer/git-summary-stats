@@ -46,9 +46,6 @@ public class GitExecutableTests
             Console.WriteLine($"{branch.Commits?.Count,-12:n0} {branch.BranchName}");
         }
 
-#if DEBUG
-        Console.WriteLine(summaryFull.ToJsonString());
-#endif
     }
 
     private static string GetTestGitLocalRepoFolder()

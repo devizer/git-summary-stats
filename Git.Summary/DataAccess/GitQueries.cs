@@ -48,6 +48,8 @@ namespace Git.Summary.DataAccess
                     branch => PopulateBranchCommits(branch)
                 );
 
+                ret.Branches = ret.Branches.OrderByDescending(x => (x.Commits?.Count).GetValueOrDefault()).ToList();
+
                 // Commit Info
                 var uniqueCommits = ret.Branches.SelectMany(x => x.Commits).Select(x => x.FullHash).Where(x => !string.IsNullOrEmpty(x)).Distinct().ToList();
                 var d = ParallelGitCommitDetailsQuery.Populate(uniqueCommits, gitLocalRepoFolder, ret.Errors);
@@ -69,7 +71,8 @@ namespace Git.Summary.DataAccess
             {
                 var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Full Report.json");
                 TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
-                File.WriteAllText(traceFile, ret.ToJsonString());
+                JsonExtensions.ToJsonFile(traceFile, ret, false);
+                // File.WriteAllText(traceFile, ret.ToJsonString());
             }
             return ret;
         }
