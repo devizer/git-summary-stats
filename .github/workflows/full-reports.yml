@@ -45,7 +45,7 @@ jobs:
         # path: "${{ runner.temp }}/Artifacts/**/**"
           
   
-  Setup:
+  BuildReport:
 
     timeout-minutes: 45
     needs: Pre-Build
@@ -115,7 +115,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: 'Summary ${{ steps.run.outputs.artifact }} ${{ github.run_id }} ${{ github.job }} ${{ matrix.VMIMAGE }}'
+        name: 'Summary ${{ steps.run.outputs.artifact }} on ${{ matrix.VMIMAGE }} ${{ github.run_id }} ${{ github.job }}'
         path: '${{ github.workspace }}'
 
 
