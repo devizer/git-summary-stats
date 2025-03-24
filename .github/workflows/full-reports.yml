@@ -3,7 +3,7 @@ name: Build Git Reports
 on:
   workflow_dispatch:
   push:
-      branches: [ "master" ]
+      branches: [ "main" ]
   schedule:
       - cron: "15 4 * * *"
 
@@ -34,7 +34,7 @@ jobs:
         Say "Build fx-dependent Tests"
         cd Git.Summary.Tests
         try-and-retry dotnet restore
-        try-and-retry dotnet build -c Release -d net8.0 -o "${{ github.workspace }}/bin/Git.Summary.Tests"
+        try-and-retry dotnet build -c Release -f net8.0 -o "${{ github.workspace }}/bin/Git.Summary.Tests"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
