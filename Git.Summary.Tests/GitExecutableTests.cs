@@ -41,6 +41,11 @@ public class GitExecutableTests
         Console.WriteLine($"Total Unique Commits: {uniqueCommitsCount}");
         Console.WriteLine($"Memory Usage: {Process.GetCurrentProcess().WorkingSet64 / 1024:n0} KB");
 
+        foreach (var branch in summaryFull.Branches)
+        {
+            Console.WriteLine($"{branch.Commits?.Count,-12:n0} {branch.BranchName}");
+        }
+
 #if DEBUG
         Console.WriteLine(summaryFull.ToJsonString());
 #endif
