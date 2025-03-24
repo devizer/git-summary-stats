@@ -99,7 +99,7 @@ jobs:
       run: |
         $repoShortName = [System.IO.Path]::GetFileName("${{ matrix.Repo }}");
         $ENV:TEST_GIT_LOCAL_REPO_FOLDER = Combine-Path "$HOME" "Repo-$repoShortName";
-        & git clone "${{ matrix.Repo }}" "$($ENV:TEST_GIT_LOCAL_REPO_FOLDER)"
+        & git clone --quiet "${{ matrix.Repo }}" "$($ENV:TEST_GIT_LOCAL_REPO_FOLDER)"
         $ENV:GIT_TRACE_FOLDER = Combine-Path "${{ github.workspace }}" "Traces"
 
         Say "Repo Short Name: '$repoShortName'"

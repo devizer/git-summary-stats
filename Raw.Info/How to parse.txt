@@ -1,0 +1,12 @@
+commit e5d48435ab4e68a4648293ebed709ac10e2d1383
+Author: devizer <devizer@users.github.com>
+Date:   Sun Nov 10 20:00:02 2019 +0200
+
+    nuget metadata
+
+ README.md                                  |   8 +++++---
+ Universe.CpuUsage/Universe.CpuUsage.csproj |  24 +++++++++++++++++-------
+ appveyor.yml                               |   4 +++-
+ images/CpuUsage.Icon.png                   | Bin 0 -> 3717 bytes
+ images/Main.Icon.pdn                       | Bin 0 -> 27330 bytes
+ 5 files changed, 25 insertions(+), 11 deletions(-)
