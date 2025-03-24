@@ -47,8 +47,19 @@ namespace Git.Summary.DataAccess
                     new ParallelLinqOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount + 3 },
                     branch => PopulateBranchCommits(branch)
                 );
+
+                // Commit Info
+                var uniqueCommits = ret.Branches.SelectMany(x => x.Commits).Select(x => x.FullHash).Where(x => !string.IsNullOrEmpty(x)).Distinct().ToList();
+                var d = ParallelGitCommitDetailsQuery.Populate(uniqueCommits, gitLocalRepoFolder, ret.Errors);
+                foreach (var gitBranchModel in ret.Branches)
+                foreach (var gitCommitSummary in gitBranchModel.Commits)
+                {
+                    if (d.TryGetValue(gitCommitSummary.FullHash, out var found))
+                        gitCommitSummary.Info = found.Info;
+                }
             }
 
+            
             /*
             if (ret.Commits != null)
                 ParallelGitCommitDetailsQuery.Populate(ret.Commits, gitLocalRepoFolder, ret.Errors);
