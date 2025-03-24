@@ -90,7 +90,7 @@ jobs:
     - name: Measure Install-Module
       if: ${{ true }}
       run: |
-        iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/devizer/Universe.SqlServerJam/master/SqlServer-Version-Management/SqlServer-Version-Management.ps1'))
+        iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/devizer/Universe.SqlServerJam/master/SqlServer-Version-Management/Install-SqlServer-Version-Management.ps1'))
         Say "CPU: $(Get-Cpu-Name)"
 
 
