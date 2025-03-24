@@ -102,6 +102,9 @@ jobs:
         Say "LOCAL REPO: '$($ENV:TEST_GIT_LOCAL_REPO_FOLDER)'"
         Say "Traces: '$($ENV:GIT_TRACE_FOLDER)'"
 
+        $repoShortName = [System.IO.Path]::GetFileName("${{ matrix.Repo }}");
+        Say "Repo Short Name: '$repoShortName'"
+        echo "repo_short_name=$repoShortName" >> $GITHUB_ENV
         cd Git.Summary.Tests
         dotnet test Git.Summary.Tests.dll
 
@@ -110,7 +113,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: 'Summary ${{ github.run_id }}'
+        name: 'Summary ${{ env.repo_short_name }} ${{ github.run_id }}'
         path: '${{ github.workspace }}'
 
 
