@@ -111,8 +111,7 @@ jobs:
       if: always()
       with:
         name: 'Summary ${{ matrix.Repo }}'
-        # path: C:\Artifacts
-          
+        path: '${{ github.workspace }}'
 
 
           
