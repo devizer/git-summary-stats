@@ -45,6 +45,7 @@ namespace Universe
                 using (StreamWriter wr = new StreamWriter(fs, new UTF8Encoding(false)))
                 {
                     ser.Serialize(wr, arg);
+                    wr.Flush();
                 }
             }
             catch (Exception ex)

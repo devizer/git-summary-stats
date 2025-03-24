@@ -4,6 +4,6 @@ public class GitSummaryReport
 {
     public string LocalRepoFolder;
     public string GitVersion;
-    public List<GitBranchModel> Branches;
     public List<string> Errors;
+    public List<GitBranchModel> Branches;
 }
