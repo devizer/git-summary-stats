@@ -107,7 +107,7 @@ jobs:
 
         echo "repo_short_name=$repoShortName" >> $GITHUB_ENV
         # echo "::set-output name=artifact::$($repoShortName)"
-        echo "artifact=$($repoShortName)" >> $GITHUB_OUTPUT
+        echo "artifact=$($repoShortName)" >> "$GITHUB_OUTPUT"
         cd Binaries
         cd Git.Summary.Tests
         dotnet test Git.Summary.Tests.dll
@@ -117,7 +117,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: '${{ github.job }} ${{ steps.run.outputs.artifact }} on ${{ matrix.VMIMAGE }}'
+        name: '${{ github.job }} for ${{ steps.run.outputs.artifact }} on ${{ matrix.VMIMAGE }}'
         path: '${{ github.workspace }}'
 
 
