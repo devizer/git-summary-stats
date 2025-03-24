@@ -46,7 +46,6 @@ namespace Git.Summary.DataAccess
                     var branchName = result.OutputText.Trim('\r', '\n');
                     gitCommitSummary.BranchName = branchName;
                     var debugLogMessage = $"{startAt.Elapsed} {Interlocked.Increment(ref index)} of {commits.Count()} | Commit {gitCommitSummary.FullHash} Branch='{branchName}'";
-                    Console.WriteLine(debugLogMessage);
 
                     if (GitTraceFiles.GitTraceFolder != null)
                     {

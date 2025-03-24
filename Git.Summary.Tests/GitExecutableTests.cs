@@ -38,7 +38,7 @@ public class GitExecutableTests
 #endif
     }
 
-        private static string GetTestGitLocalRepoFolder()
+    private static string GetTestGitLocalRepoFolder()
     {
         var raw = Environment.GetEnvironmentVariable("TEST_GIT_LOCAL_REPO_FOLDER");
         return raw ?? "W:\\Temp\\efcore\\";
