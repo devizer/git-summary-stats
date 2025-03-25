@@ -21,7 +21,7 @@ namespace Git.Summary.DataAccess
             IDictionary<string, GitCommitSummary> ret = new ConcurrentDictionary<string, GitCommitSummary>(StringComparer.OrdinalIgnoreCase);
 
             // QueuedTaskScheduler scheduler = new QueuedTaskScheduler(Environment.ProcessorCount + 2);
-            LimitedConcurrencyLevelTaskScheduler scheduler = new LimitedConcurrencyLevelTaskScheduler(Environment.ProcessorCount + 2);
+            LimitedConcurrencyLevelTaskScheduler scheduler = new LimitedConcurrencyLevelTaskScheduler(Environment.ProcessorCount);
             TaskFactory taskFactory = new TaskFactory(scheduler);
             List<Task> subTasks = new List<Task>();
             Stopwatch startAt = Stopwatch.StartNew();

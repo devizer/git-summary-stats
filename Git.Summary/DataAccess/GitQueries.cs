@@ -32,7 +32,7 @@ namespace Git.Summary.DataAccess
                 
                 Parallel.ForEach(
                     ret.Branches,
-                    new ParallelLinqOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount + 3 },
+                    new ParallelLinqOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                     branch => PopulateBranchCommits(branch)
                 );
 
