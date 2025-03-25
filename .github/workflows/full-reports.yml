@@ -129,7 +129,7 @@ jobs:
     runs-on: windows-latest
     needs: BuildReport
     if: always()
-    timeout-minutes: 30
+    timeout-minutes: 100
     steps:
 
     - name: Download all workflow run artifacts
@@ -145,7 +145,7 @@ jobs:
         echo $directories
         $directories | % { Remove-Item -Recurse -Force $_ -EA SilentlyContinue | out-null }
 
-        & 7z a "C:\Artifacts\Combined Git.Summary.Tests.7z" "-mx=9" "-ms=on" "-mqs=on" "-sdel"
+        & 7z a "C:\Artifacts\Combined Git.Summary.Tests.7z" "-mx=3" "-ms=on" "-mqs=on" "-sdel"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
