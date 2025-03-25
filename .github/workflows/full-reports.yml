@@ -140,10 +140,13 @@ jobs:
     - name: 'Repack C:\Artifacts'
       run: |
         cd C:\Artifacts
+        
         $directories = @(Get-ChildItem -Recurse | ? { $_.PSIsContainer } | % { $_.FullName } | ? { -not ("$_" -match "Trace") } )
+        echo "";
         echo "TO DELETE:"
         echo $directories
-        $directories | % { Remove-Item -Recurse -Force $_ -EA SilentlyContinue | out-null }
+        # $directories | % { Remove-Item -Recurse -Force $_ -EA SilentlyContinue | out-null }
+        Remove-Item -Recurse -Force "Binaries" -EA SilentlyContinue | out-null 
 
         & 7z a "C:\Artifacts\Combined Git.Summary.Tests.7z" "-mx=3" "-ms=on" "-mqs=on" "-sdel"
 
