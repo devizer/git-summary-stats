@@ -58,9 +58,9 @@ jobs:
            'ubuntu-latest'
         ]
         Repo: [
-           'https://github.com/dotnet/efcore',
            'https://github.com/devizer/Universe.CpuUsage',
-           'https://github.com/nunit/nunit'
+           'https://github.com/nunit/nunit',
+           'https://github.com/dotnet/efcore'
         ]
 
     runs-on: ${{ matrix.VMIMAGE }}
