@@ -50,6 +50,11 @@ public class GitExecutableTests
 
         Console.WriteLine($"{Environment.NewLine}ERRORS {summaryFull.Errors.Count}");
         Console.WriteLine(string.Join(Environment.NewLine, summaryFull.Errors));
+
+        var jsonReportFile = Path.GetFullPath(Path.Combine("bin", "Report.json"));
+        Console.WriteLine($"Full Report: '{jsonReportFile}'");
+        TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(jsonReportFile)));
+        JsonExtensions.ToJsonFile(jsonReportFile, summaryFull);
     }
 
     private static string GetTestGitLocalRepoFolder()
