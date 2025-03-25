@@ -137,7 +137,7 @@ jobs:
     - name: 'Repack C:\Artifacts'
       run: |
         cd C:\Artifacts
-        & 7z a C:\Artifacts\Combined Git.Summary.Tests.7z "-mx=9" "-ms=on" "-mqs=on" "-sdel"
+        & 7z a "C:\Artifacts\Combined Git.Summary.Tests.7z" "-mx=9" "-ms=on" "-mqs=on" "-sdel"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
