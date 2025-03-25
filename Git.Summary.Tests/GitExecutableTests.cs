@@ -46,6 +46,8 @@ public class GitExecutableTests
             Console.WriteLine($"{branch.Commits?.Count,-12:n0} {(branch.Commits?.FirstOrDefault()?.CommitDate),-30} {branch.BranchName}");
         }
 
+
+
     }
 
     private static string GetTestGitLocalRepoFolder()

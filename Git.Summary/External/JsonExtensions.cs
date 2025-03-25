@@ -41,10 +41,14 @@ namespace Universe
             try
             {
                 // var jsonString = arg.ToJsonString(minify, namingStrategy);
-                using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, 32768))
                 using (StreamWriter wr = new StreamWriter(fs, new UTF8Encoding(false)))
+                using (JsonTextWriter jwr = new JsonTextWriter(wr))
                 {
-                    ser.Serialize(wr, arg);
+                    ser.Serialize(jwr, arg);
+                    jwr.Flush();
+                    wr.Flush();
+                    jwr.Flush();
                     wr.Flush();
                 }
             }
@@ -85,6 +89,7 @@ namespace Universe
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             ContractResolver = GetContractResolver(namingStrategy),
             MaxDepth = 32,
+            StringEscapeHandling = StringEscapeHandling.EscapeNonAscii,
             MissingMemberHandling = MissingMemberHandling.Ignore,
             NullValueHandling = NullValueHandling.Ignore,
             // Ignore does not work properly 
