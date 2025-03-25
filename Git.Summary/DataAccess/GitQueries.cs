@@ -21,25 +21,13 @@ namespace Git.Summary.DataAccess
                 LocalRepoFolder = gitLocalRepoFolder,
                 Errors = new List<string>(),
             };
-            var trySomething = (Action action) =>
-            {
-                try
-                {
-                    action();
-                }
-                catch (Exception ex)
-                {
-                    ret.Errors.Add(ex.GetExceptionDigest());
-                }
-            };
-
-            trySomething(() => ret.GitVersion = GitExecutable.GetGitVersion());
-            trySomething(() => ret.Branches = GetBranches(gitLocalRepoFolder));
+            BuildErrorsHolder.Try(ret.Errors, () => ret.GitVersion = GitExecutable.GetGitVersion());
+            BuildErrorsHolder.Try(ret.Errors, () => ret.Branches = GetBranches(gitLocalRepoFolder));
             if (ret.Branches != null)
             {
                 void PopulateBranchCommits(GitBranchModel branchModel)
                 {
-                    trySomething(() => branchModel.Commits = this.GetBranchCommits(gitLocalRepoFolder, branchModel.BranchName));
+                    BuildErrorsHolder.Try(ret.Errors, () => branchModel.Commits = this.GetBranchCommits(gitLocalRepoFolder, branchModel.BranchName));
                 }
                 
                 Parallel.ForEach(
@@ -62,17 +50,13 @@ namespace Git.Summary.DataAccess
             }
 
             
-            /*
-            if (ret.Commits != null)
-                ParallelGitCommitDetailsQuery.Populate(ret.Commits, gitLocalRepoFolder, ret.Errors);
-                */
-
             if (GitTraceFiles.GitTraceFolder != null)
             {
                 var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Full Report.json");
-                TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
-                JsonExtensions.ToJsonFile(traceFile, ret, false);
-                // File.WriteAllText(traceFile, ret.ToJsonString());
+                BuildErrorsHolder.TryTitled(ret.Errors, $"Store full report as {traceFile}", () => {
+                    TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
+                    JsonExtensions.ToJsonFile(traceFile, ret, false);
+                });
             }
             return ret;
         }

@@ -41,13 +41,15 @@ public class GitExecutableTests
         Console.WriteLine($"Total Unique Commits: {uniqueCommitsCount}");
         Console.WriteLine($"Memory Usage: {Process.GetCurrentProcess().WorkingSet64 / 1024:n0} KB");
 
+
+        Console.WriteLine($"{Environment.NewLine}BRANCHES {summaryFull.Branches?.Count}");
         foreach (var branch in summaryFull.Branches)
         {
             Console.WriteLine($"{branch.Commits?.Count,-12:n0} {(branch.Commits?.FirstOrDefault()?.CommitDate),-30} {branch.BranchName}");
         }
 
-
-
+        Console.WriteLine($"{Environment.NewLine}ERRORS {summaryFull.Errors.Count}");
+        Console.WriteLine(string.Join(Environment.NewLine, summaryFull.Errors));
     }
 
     private static string GetTestGitLocalRepoFolder()

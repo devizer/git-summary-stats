@@ -19,19 +19,6 @@ namespace Git.Summary.DataAccess
         public static IDictionary<string, GitCommitSummary> Populate(this IEnumerable<string> hashCommits, string gitLocalRepoFolder, List<string> errors)
         {
             IDictionary<string, GitCommitSummary> ret = new ConcurrentDictionary<string, GitCommitSummary>(StringComparer.OrdinalIgnoreCase);
-            object syncErrors = new object();
-            var trySomething = (Action action) =>
-            {
-                try
-                {
-                    action();
-                }
-                catch (Exception ex)
-                {
-                    var errorMessage = ex.GetExceptionDigest();
-                    lock (syncErrors) errors.Add(errorMessage);
-                }
-            };
 
             // QueuedTaskScheduler scheduler = new QueuedTaskScheduler(Environment.ProcessorCount + 2);
             LimitedConcurrencyLevelTaskScheduler scheduler = new LimitedConcurrencyLevelTaskScheduler(Environment.ProcessorCount + 2);
@@ -54,15 +41,17 @@ namespace Git.Summary.DataAccess
                     {
                         var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Commits", $"{hash}.Txt");
                         TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
-                        lock(string.Intern(traceFile))
-                            File.AppendAllText(traceFile, $"{commitInfo}");
+                        BuildErrorsHolder.TryTitled(errors, $"Store ttrace for commit '{hash}' as '{traceFile}'", () => {
+                            lock (string.Intern(traceFile))
+                                File.AppendAllText(traceFile, $"{commitInfo}");
+                        });
                     }
 
                 }
 
                 Action populate = () =>
                 {
-                    trySomething(() => PopulateInfo());
+                    BuildErrorsHolder.Try(errors, () => PopulateInfo());
                 };
                 var task = taskFactory.StartNew(populate);
                 subTasks.Add(task);
