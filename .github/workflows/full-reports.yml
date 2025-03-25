@@ -134,11 +134,16 @@ jobs:
       with:
          path: 'C:\Artifacts'
 
+    - name: 'Repack C:\Artifacts'
+      run: |
+        cd C:\Artifacts
+        & 7z a C:\Artifacts\Combined Git.Summary.Tests.7z "-mx=9" "-ms=on" "-mqs=on" "-sdel"
+
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       # if: always()
       with:
         name: 'Combined Git.Summary.Tests'
-        path: |
-          C:\Artifacts
+        path: 'C:\Artifacts\Combined Git.Summary.Tests.7z'
+          
 
