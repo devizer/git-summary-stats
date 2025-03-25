@@ -112,7 +112,8 @@ jobs:
         # echo "artifact=$($repoShortName)" >> "$GITHUB_OUTPUT"
         cd Binaries
         cd Git.Summary.Tests
-        & dotnet test Git.Summary.Tests.dll 2>&1 | tee "$($ENV:GIT_TRACE_FOLDER)/Test-Output.Log"
+        # & dotnet test Git.Summary.Tests.dll 2>&1 | tee "$($ENV:GIT_TRACE_FOLDER)/Test-Output.Log"
+        dotnet test Git.Summary.Tests.dll
 
 
     - name: Upload artifacts
