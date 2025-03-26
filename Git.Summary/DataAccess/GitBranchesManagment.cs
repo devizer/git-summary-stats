@@ -143,7 +143,7 @@ public class GitBranchesManagement
                 {
                     HashParents next = new HashParents() { Hash = arr[0] };
                     next.Parents = new List<string>(arrLength - 1);
-                    for (int i = 0; i < arrLength - 1; i++) next.Parents[i] = arr[i + 1];
+                    for (int i = 1; i <= arrLength - 1; i++) next.Parents[i-1] = arr[i];
                     if (next.Hash.Length > 0) ret.Add(next);
                 }
             }

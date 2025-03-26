@@ -108,7 +108,7 @@ namespace Git.Summary.DataAccess
                             if (!string.IsNullOrEmpty(found.Info))
                             {
                                 gitCommitSummary.Info = found.Info;
-                                ParseInfo(gitCommitSummary);
+                                ParseCommitInfo(gitCommitSummary);
                             }
 
                             if (found.BranchName != null) gitCommitSummary.BranchName = found.BranchName;
@@ -137,7 +137,7 @@ namespace Git.Summary.DataAccess
             return ret;
         }
 
-        private void ParseInfo(GitCommitSummary gitCommitSummary)
+        private void ParseCommitInfo(GitCommitSummary gitCommitSummary)
         {
             if (string.IsNullOrEmpty(gitCommitSummary.Info)) return;
             StringReader rdr = new StringReader(gitCommitSummary.Info);
