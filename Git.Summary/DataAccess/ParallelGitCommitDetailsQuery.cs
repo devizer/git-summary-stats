@@ -31,6 +31,7 @@ namespace Git.Summary.DataAccess
             {
                 void PopulateBranch(GitCommitSummary gitCommitSummary)
                 {
+                    return;
                     // git branch --no-color --no-column --format "%(refname:lstrip=2)" --contains f5a9e6b011312007e37441beab43e533dfc3f48f
                     var args = $"branch --no-color --no-column --format \"%(refname:lstrip=2)\" --contains {hash}";
                     var result = ExecProcessHelper.HiddenExec(GitExecutable.GetGitExecutable(), args, gitLocalRepoFolder);

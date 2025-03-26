@@ -45,6 +45,15 @@ namespace Git.Summary.DataAccess
                     branch => PopulateBranchCommits(branch)
                 );
 
+                foreach (var gitBranchModel in ret.Branches)
+                {
+                    foreach (var gitCommitSummary in gitBranchModel.Commits)
+                    {
+                        gitCommitSummary.BranchNames = gitCommitSummary.BranchNames == null ? new List<string>() : gitCommitSummary.BranchNames;
+                        gitCommitSummary.BranchNames.Add(gitBranchModel.BranchName);
+                    }
+                }
+
                 ret.Branches = ret.Branches.OrderByDescending(x => (x.Commits?.Count).GetValueOrDefault()).ToList();
 
                 // Commit Info and Branch Name
