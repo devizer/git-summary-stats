@@ -15,8 +15,9 @@ namespace Git.Summary.DataAccess
 {
     public static class ParallelGitCommitDetailsQuery
     {
-        // Returns only .Info
-        public static IDictionary<string, GitCommitSummary> Populate(this IEnumerable<string> hashCommits, string gitLocalRepoFolder, List<string> errors)
+        
+        // Returns only .Info and .BranchName
+        public static IDictionary<string, GitCommitSummary> Populate(this IEnumerable<string> /* unique */ hashCommits, string gitLocalRepoFolder, List<string> errors)
         {
             IDictionary<string, GitCommitSummary> ret = new ConcurrentDictionary<string, GitCommitSummary>(StringComparer.OrdinalIgnoreCase);
 
@@ -28,20 +29,37 @@ namespace Git.Summary.DataAccess
             int index = 0;
             foreach (string hash in hashCommits)
             {
+                void PopulateBranch(GitCommitSummary gitCommitSummary)
+                {
+                    // git branch --no-color --no-column --format "%(refname:lstrip=2)" --contains f5a9e6b011312007e37441beab43e533dfc3f48f
+                    var args = $"branch --no-color --no-column --format \"%(refname:lstrip=2)\" --contains {hash}";
+                    var result = ExecProcessHelper.HiddenExec(GitExecutable.GetGitExecutable(), args, gitLocalRepoFolder);
+                    result.DemandGenericSuccess($"Query branch for commit {hash} of repo '{gitLocalRepoFolder}'");
+                    var branchName = result.OutputText.Trim('\r', '\n');
+                    gitCommitSummary.BranchName = branchName;
+                    var debugLogMessage = $"{startAt.Elapsed} {Interlocked.Increment(ref index)} of {hashCommits.Count()} | Commit {gitCommitSummary.FullHash} Branch='{branchName}'";
 
-                void PopulateInfo()
+                    if (GitTraceFiles.GitTraceFolder != null)
+                    {
+                        var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Populate.log");
+                        TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
+                        File.AppendAllText(traceFile, $"{debugLogMessage}{Environment.NewLine}");
+                    }
+                }
+
+                void PopulateInfo(GitCommitSummary gitCommitSummary)
                 {
                     // git show d43f2c485192294338917ce1f9897c73a6c91d06 --stat=99999,99999,99999 > ..\show2.txt
                     var args = $"show --no-color --stat=99999,99999,99999 {hash}";
                     var result = ExecProcessHelper.HiddenExec(GitExecutable.GetGitExecutable(), args, gitLocalRepoFolder);
                     result.DemandGenericSuccess($"Query branch for commit {hash} of repo '{gitLocalRepoFolder}'");
                     var commitInfo = result.OutputText;
-                    ret[hash] = new GitCommitSummary() { Info = commitInfo };
+                    gitCommitSummary.Info = commitInfo;
                     if (GitTraceFiles.GitTraceFolder != null)
                     {
                         var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Commits", $"{hash}.Txt");
                         TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
-                        BuildErrorsHolder.TryTitled(errors, $"Store ttrace for commit '{hash}' as '{traceFile}'", () => {
+                        BuildErrorsHolder.TryTitled(errors, $"Store trace for commit '{hash}' as '{traceFile}'", () => {
                             lock (string.Intern(traceFile))
                                 File.AppendAllText(traceFile, $"{commitInfo}");
                         });
@@ -51,7 +69,10 @@ namespace Git.Summary.DataAccess
 
                 Action populate = () =>
                 {
-                    BuildErrorsHolder.Try(errors, () => PopulateInfo());
+                    GitCommitSummary gitCommitSummary = new GitCommitSummary();
+                    BuildErrorsHolder.Try(errors, () => PopulateInfo(gitCommitSummary));
+                    BuildErrorsHolder.Try(errors, () => PopulateBranch(gitCommitSummary));
+                    ret[hash] = gitCommitSummary;
                 };
                 var task = taskFactory.StartNew(populate);
                 subTasks.Add(task);

@@ -29,7 +29,7 @@ namespace Git.Summary.DataAccess
                 {
                     BuildErrorsHolder.Try(ret.Errors, () => branchModel.Commits = this.GetBranchCommits(gitLocalRepoFolder, branchModel.BranchName));
                 }
-                
+
                 Parallel.ForEach(
                     ret.Branches,
                     new ParallelLinqOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
@@ -38,18 +38,28 @@ namespace Git.Summary.DataAccess
 
                 ret.Branches = ret.Branches.OrderByDescending(x => (x.Commits?.Count).GetValueOrDefault()).ToList();
 
-                // Commit Info
+                // Commit Info and Branch Name
                 var uniqueCommits = ret.Branches.SelectMany(x => x.Commits).Select(x => x.FullHash).Where(x => !string.IsNullOrEmpty(x)).Distinct().ToList();
                 var d = ParallelGitCommitDetailsQuery.Populate(uniqueCommits, gitLocalRepoFolder, ret.Errors);
-                foreach (var gitBranchModel in ret.Branches)
-                foreach (var gitCommitSummary in gitBranchModel.Commits)
+                foreach (var gitBranchModel in ret.Branches) 
                 {
-                    if (d.TryGetValue(gitCommitSummary.FullHash, out var found))
-                        gitCommitSummary.Info = found.Info;
+                    foreach (var gitCommitSummary in gitBranchModel.Commits)
+                    {
+                        if (d.TryGetValue(gitCommitSummary.FullHash, out var found))
+                        {
+                            if (!string.IsNullOrEmpty(found.Info)) gitCommitSummary.Info = found.Info;
+                            if (!string.IsNullOrEmpty(found.BranchName)) gitCommitSummary.BranchName = found.BranchName;
+                        }
+                    }
+
+                    gitBranchModel.Commits =
+                        gitBranchModel.Commits.Take(1).Concat(
+                            gitBranchModel.Commits.Skip(1).Where(x => $"$origin/{x.BranchName}" == gitBranchModel.BranchName)
+                        ).ToList();
                 }
             }
 
-            
+
             if (GitTraceFiles.GitTraceFolder != null)
             {
                 var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Full Report.json");
