@@ -61,10 +61,11 @@ namespace Git.Summary.DataAccess
                         }
                     }
 
-                    gitBranchModel.Commits =
-                        gitBranchModel.Commits.Take(1).Concat(
-                            gitBranchModel.Commits.Skip(1).Where(x => $"$origin/{x.BranchName}" == gitBranchModel.BranchName || string.IsNullOrEmpty(x.BranchName))
-                        ).ToList();
+                    var tail = gitBranchModel.Commits
+                        .Skip(1)
+                        .Where(x => $"${x.BranchName}" == gitBranchModel.BranchName || string.IsNullOrEmpty(x.BranchName));
+
+                    gitBranchModel.Commits = gitBranchModel.Commits.Take(1).Concat(tail).ToList();
                 }
             }
 
