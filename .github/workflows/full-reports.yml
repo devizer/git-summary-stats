@@ -53,9 +53,9 @@ jobs:
       fail-fast: false
       matrix:
         VMIMAGE: [
-           'windows-latest',
+           'ubuntu-latest',
            'macos-15',
-           'ubuntu-latest'
+           'windows-latest'
         ]
         Repo: [
            'https://github.com/devizer/Universe.CpuUsage',
@@ -99,7 +99,7 @@ jobs:
         $repoShortName = [System.IO.Path]::GetFileName("${{ matrix.Repo }}");
         $ENV:TEST_GIT_LOCAL_REPO_FOLDER = Combine-Path "$HOME" "Repo-$repoShortName";
         & git clone --quiet "${{ matrix.Repo }}" "$($ENV:TEST_GIT_LOCAL_REPO_FOLDER)"
-        # $ENV:GIT_TRACE_FOLDER = Combine-Path "${{ github.workspace }}" "Traces"
+        $ENV:GIT_TRACE_FOLDER = Combine-Path "${{ github.workspace }}" "Traces"
 
         Say "github.workspace: '${{ github.workspace }}'"
         Say "Repo Short Name: '$repoShortName'"
