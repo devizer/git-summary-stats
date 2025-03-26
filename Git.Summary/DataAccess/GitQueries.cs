@@ -53,7 +53,7 @@ namespace Git.Summary.DataAccess
                     if (!uniqueCommitHashes.TryGetValue(gitCommitSummary.FullHash, out var uniqueCommit))
                         uniqueCommitHashes[gitCommitSummary.FullHash] = uniqueCommit = new GitCommitSummary();
 
-                    uniqueCommit.BranchNames = gitCommitSummary.BranchNames == null ? new List<string>() : uniqueCommit.BranchNames;
+                    uniqueCommit.BranchNames = uniqueCommit.BranchNames == null ? new List<string>() : uniqueCommit.BranchNames;
                     uniqueCommit.BranchNames.Add(gitBranchModel.BranchName);
                 }
 
