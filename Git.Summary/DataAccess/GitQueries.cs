@@ -128,8 +128,8 @@ namespace Git.Summary.DataAccess
         public List<GitBranchModel> GetBranches()
         {
             GitBranchesManagement man = new GitBranchesManagement(GitLocalRepoFolder);
-            var branchNames = man.GetRemoteBranchNames();
-            List<GitBranchModel> ret = branchNames.Select(x => new GitBranchModel() { BranchName = x }).ToList();
+            var branchNames = man.GetStructuresRemoteBranches();
+            List<GitBranchModel> ret = branchNames.Select(x => new GitBranchModel() { BranchName = x.Name, Remote = x.Remote}).ToList();
             return ret;
         }
 
