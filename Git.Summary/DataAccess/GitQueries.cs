@@ -47,7 +47,7 @@ namespace Git.Summary.DataAccess
 
                 foreach (var gitBranchModel in ret.Branches)
                 {
-                    foreach (var gitCommitSummary in gitBranchModel.Commits)
+                    foreach (GitCommitSummary gitCommitSummary in gitBranchModel.Commits)
                     {
                         gitCommitSummary.BranchNames = gitCommitSummary.BranchNames == null ? new List<string>() : gitCommitSummary.BranchNames;
                         gitCommitSummary.BranchNames.Add(gitBranchModel.BranchName);
@@ -70,8 +70,9 @@ namespace Git.Summary.DataAccess
                                 gitCommitSummary.Info = found.Info;
                                 ParseInfo(gitCommitSummary);
                             }
-                            gitCommitSummary.BranchName = found.BranchName;
-                            gitCommitSummary.BranchNames = found.BranchNames;
+
+                            if (found.BranchName != null) gitCommitSummary.BranchName = found.BranchName;
+                            if (found.BranchNames != null) gitCommitSummary.BranchNames = found.BranchNames;
                         }
                     }
 
