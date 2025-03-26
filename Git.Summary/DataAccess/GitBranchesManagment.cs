@@ -142,7 +142,7 @@ public class GitBranchesManagement
         result.DemandGenericSuccess($"Query git parents for {branchNameDebug} for {GitLocalRepoFolder}");
         if (GitTraceFiles.GitTraceFolder != null)
         {
-            var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(GitLocalRepoFolder), $"Parents for {branchName}.txt");
+            var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(GitLocalRepoFolder), $"Parents for {SafeFileName.Get(branchName, true)}.txt");
             TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
             File.WriteAllText(traceFile, result.OutputText);
         }

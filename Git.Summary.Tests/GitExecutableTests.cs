@@ -95,12 +95,11 @@ public class GitExecutableTests
         var totalCommits = summaryFull.Branches?.SelectMany(x => x.Commits);
         var commitsCount = totalCommits?.Count();
         var uniqueCommitsCount = totalCommits?.Select(x => x.FullHash).Distinct().Count();
-        Console.WriteLine($"Total Commits: {commitsCount}");
-        Console.WriteLine($"Total Unique Commits: {uniqueCommitsCount}");
-        Console.WriteLine($"Memory Usage: {Process.GetCurrentProcess().WorkingSet64 / 1024:n0} KB");
-
         var totalCommitsWithoutParents = totalCommits?.Where(x => x.Parents == null).Count();
+        Console.WriteLine($"TOTAL Commits: {commitsCount}");
+        Console.WriteLine($"Total UNIQUE Commits: {uniqueCommitsCount}");
         Console.WriteLine($"Total commits WITHOUT PARENTS: {totalCommitsWithoutParents}");
+        Console.WriteLine($"Memory Usage: {Process.GetCurrentProcess().WorkingSet64 / 1024:n0} KB");
 
         Console.WriteLine($"{Environment.NewLine}BRANCHES {summaryFull.Branches?.Count}");
         foreach (var branch in summaryFull.Branches)
