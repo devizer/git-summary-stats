@@ -113,6 +113,25 @@ public class GitBranchesManagement
     {
         public string Hash;
         public List<string> Parents;
+
+        private sealed class HashEqualityComparer : IEqualityComparer<HashParents>
+        {
+            public bool Equals(HashParents x, HashParents y)
+            {
+                if (ReferenceEquals(x, y)) return true;
+                if (ReferenceEquals(x, null)) return false;
+                if (ReferenceEquals(y, null)) return false;
+                if (x.GetType() != y.GetType()) return false;
+                return x.Hash == y.Hash;
+            }
+
+            public int GetHashCode(HashParents obj)
+            {
+                return (obj.Hash != null ? obj.Hash.GetHashCode() : 0);
+            }
+        }
+
+        public static IEqualityComparer<HashParents> HashComparer { get; } = new HashEqualityComparer();
     }
 
     public List<HashParents> GetAllParentsForBranch(string branchName)

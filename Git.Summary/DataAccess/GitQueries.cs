@@ -35,7 +35,7 @@ namespace Git.Summary.DataAccess
             if (ret.Branches != null)
             {
                 // TOTAL BRANCHES: Parents
-                HashSet<GitBranchesManagement.HashParents> totalParents = new HashSet<GitBranchesManagement.HashParents>();
+                HashSet<GitBranchesManagement.HashParents> totalParents = new HashSet<GitBranchesManagement.HashParents>(GitBranchesManagement.HashParents.HashComparer);
                 void PopulateBranchCommitsAndParents(GitBranchModel branchModel)
                 {
                     BuildErrorsHolder.Try(ret.Errors, () => branchModel.Commits = this.GetBranchCommits(branchModel.BranchName));
@@ -51,6 +51,15 @@ namespace Git.Summary.DataAccess
                     new ParallelLinqOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                     branch => PopulateBranchCommitsAndParents(branch)
                 );
+
+                // Copy Parents from totalParents to ret.Branches
+                foreach (var gitBranchModel in ret.Branches)
+                foreach (var gitCommitSummary in gitBranchModel.Commits)
+                {
+                    GitBranchesManagement.HashParents key = new GitBranchesManagement.HashParents() { Hash = gitCommitSummary.FullHash };
+                    if (totalParents.TryGetValue(key, out var parents))
+                        gitCommitSummary.Parents = parents.Parents;
+                }
 
                 // Populating GitCommitSummary.BranchNames
                 Dictionary<string, GitCommitSummary> uniqueCommitHashes = new Dictionary<string, GitCommitSummary>(StringComparer.InvariantCultureIgnoreCase);
@@ -126,7 +135,8 @@ namespace Git.Summary.DataAccess
             }
 
 
-            if (GitTraceFiles.GitTraceFolder != null)
+            // Return value is not necessary in traces
+            if (false && GitTraceFiles.GitTraceFolder != null)
             {
                 var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Full Report.json");
                 BuildErrorsHolder.TryTitled(ret.Errors, $"Store full report as {traceFile}", () => {
