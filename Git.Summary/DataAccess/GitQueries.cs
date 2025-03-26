@@ -93,16 +93,18 @@ namespace Git.Summary.DataAccess
             string line = null;
             string summaryChanges = null;
             string merge = null;
+            int countEmptyLines = 0;
             while (true)
             {
                 line = rdr.ReadLine();
                 if (line == null) break;
-                if (line.Length > 0) summaryChanges = line;
+                if (line.Length == 0) countEmptyLines++;
+                if (line.Length > 0 && countEmptyLines >= 2) summaryChanges = line;
                 if (line.StartsWith("Merge: ") && line.Length > 7) merge = line.Substring(7);
             }
 
             gitCommitSummary.Merge = merge;
-            gitCommitSummary.SummaryChanges = summaryChanges;
+            gitCommitSummary.SummaryChanges = summaryChanges?.Trim();
         }
 
         public List<GitCommitSummary> GetBranchCommits(string branchName)
