@@ -45,7 +45,8 @@ namespace Git.Summary.DataAccess
                         TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
                         BuildErrorsHolder.TryTitled(errors, $"Log to {traceFile}", () =>
                         {
-                            File.AppendAllText(traceFile, $"{debugLogMessage}{Environment.NewLine}");
+                            lock(string.Intern(traceFile))
+                                File.AppendAllText(traceFile, $"{debugLogMessage}{Environment.NewLine}");
                         });
                     }
                 }
