@@ -73,8 +73,8 @@ namespace Git.Summary.DataAccess
                     {
                         var branch = gitCommitSummary.BranchNames
                             .Select(name => ret.Branches.FirstOrDefault(b => b.BranchName == name))
-                            .Where(x => x?.OldestCommitDate.HasValue == true)
-                            .MinBy(x => x.OldestCommitDate);
+                            .Where(b => b?.OldestCommitDate.HasValue == true)
+                            .MinBy(b => b.OldestCommitDate);
 
                         if (branch != null) gitCommitSummary.BranchName = branch.BranchName;
                     }
@@ -84,7 +84,10 @@ namespace Git.Summary.DataAccess
                     }
                 }
 
-                ret.Branches = ret.Branches.OrderByDescending(x => x.OldestCommitDate).ToList();
+                ret.Branches = ret.Branches
+                    .OrderByDescending(x => x.OldestCommitDate)
+                    .ThenByDescending(x => (x.Commits?.Count).GetValueOrDefault())
+                    .ToList();
 
                 // Commit Info and Branch Name
                 var uniqueCommits = ret.Branches.SelectMany(x => x.Commits).Select(x => x.FullHash).Where(x => !string.IsNullOrEmpty(x)).Distinct().ToList();
