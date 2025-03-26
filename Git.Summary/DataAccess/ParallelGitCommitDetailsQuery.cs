@@ -15,7 +15,6 @@ namespace Git.Summary.DataAccess
 {
     public static class ParallelGitCommitDetailsQuery
     {
-        
         // Returns only .Info and .BranchName
         public static IDictionary<string, GitCommitSummary> Populate(this IEnumerable<string> /* unique */ hashCommits, string gitLocalRepoFolder, List<string> errors)
         {

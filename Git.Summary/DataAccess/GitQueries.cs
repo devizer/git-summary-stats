@@ -43,7 +43,6 @@ namespace Git.Summary.DataAccess
                         var localParents = new GitBranchesManagement(gitLocalRepoFolder).GetAllParentsForBranch(branchModel.BranchName);
                         foreach (var localParent in localParents) totalParents.Add(localParent);
                     });
-
                 }
 
                 Parallel.ForEach(

@@ -115,7 +115,7 @@ public class GitBranchesManagement
         public List<string> Parents;
     }
 
-    public List<HashParents> GetAllParentsForCurrentBranch(string branchName)
+    public List<HashParents> GetAllParentsForBranch(string branchName)
     {
         var args = $"rev-list --parents {(string.IsNullOrEmpty(branchName) ? "HEAD" : $"\"{branchName}\"")}";
         var branchNameDebug = string.IsNullOrEmpty(branchName) ? "current branch" : $"branch \"{branchName}\"";
