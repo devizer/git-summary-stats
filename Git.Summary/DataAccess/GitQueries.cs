@@ -31,6 +31,7 @@ namespace Git.Summary.DataAccess
             };
             BuildErrorsHolder.Try(ret.Errors, () => ret.GitVersion = GitExecutable.GetGitVersion());
             BuildErrorsHolder.Try(ret.Errors, () => ret.Branches = GetBranches());
+            BuildErrorsHolder.Try(ret.Errors, () => ret.InitialBranch = new GitBranchesManagement(GitLocalRepoFolder).GetCurrentBranch());
             if (ret.Branches != null)
             {
                 void PopulateBranchCommits(GitBranchModel branchModel)

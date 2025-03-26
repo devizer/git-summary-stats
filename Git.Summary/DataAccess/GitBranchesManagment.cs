@@ -22,7 +22,8 @@ namespace Git.Summary.DataAccess
 
         public string GetCurrentBranch()
         {
-            var args = $"branch --no-color --no-column --format \"%(refname:lstrip=2)\"";
+            // var args = $"branch --no-color --no-column --format \"%(refname:lstrip=2)\"";
+            var args = $"rev-parse --abbrev-ref HEAD";
             var result = ExecProcessHelper.HiddenExec(GitExecutable.GetGitExecutable(), args, GitLocalRepoFolder);
             result.DemandGenericSuccess($"Query current branch");
             var branchName = result.OutputText.Trim('\r', '\n');
