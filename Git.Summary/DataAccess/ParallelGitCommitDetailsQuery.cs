@@ -38,7 +38,7 @@ namespace Git.Summary.DataAccess
                     var commitBranchNames = result.OutputText.Split('\r', '\n').Where(x => x.Length > 0).ToList();
                     // TODO: SKIP Commit if it belongs to main/master
                     gitCommitSummary.BranchName = commitBranchNames.FirstOrDefault();
-                    gitCommitSummary.BranchNames = string.Join(";", commitBranchNames);
+                    gitCommitSummary.BranchNames = commitBranchNames;
 
                     if (GitTraceFiles.GitTraceFolder != null)
                     {
