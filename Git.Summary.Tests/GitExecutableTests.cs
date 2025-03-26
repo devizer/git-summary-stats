@@ -41,7 +41,7 @@ public class GitExecutableTests
     public void C2_ShowStructuredRemoteBranches(string testCase)
     {
         GitBranchesManagement man = new GitBranchesManagement(GetTestGitLocalRepoFolder());
-        var branches = man.GetStructuresRemoteBranches();
+        var branches = man.GetStructuredRemoteBranches();
         Console.WriteLine($"Remote Branches:{Environment.NewLine}{string.Join(Environment.NewLine, branches.OrderBy(x => x.Name))}");
     }
 
@@ -52,7 +52,7 @@ public class GitExecutableTests
     {
         GitBranchesManagement man = new GitBranchesManagement(GetTestGitLocalRepoFolder());
         var baseBranch = man.GetCurrentBranch();
-        var branches = man.GetStructuresRemoteBranches();
+        var branches = man.GetStructuredRemoteBranches();
         try
         {
             foreach (var branch in branches)

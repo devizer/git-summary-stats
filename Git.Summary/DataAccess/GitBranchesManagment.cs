@@ -61,7 +61,7 @@ public class GitBranchesManagement
             .ToList();
     }
 
-    public List<RemoteBranchName> GetStructuresRemoteBranches()
+    public List<RemoteBranchName> GetStructuredRemoteBranches()
     {
         var remotes = this.GetRemotes();
         var remoteBranchNames = this.GetRemoteBranchNames();
@@ -143,7 +143,7 @@ public class GitBranchesManagement
                 {
                     HashParents next = new HashParents() { Hash = arr[0] };
                     next.Parents = new List<string>(arrLength - 1);
-                    for (int i = 1; i <= arrLength - 1; i++) next.Parents[i-1] = arr[i];
+                    for (int i = 1; i <= arrLength - 1; i++) next.Parents.Add(arr[i]);
                     if (next.Hash.Length > 0) ret.Add(next);
                 }
             }
