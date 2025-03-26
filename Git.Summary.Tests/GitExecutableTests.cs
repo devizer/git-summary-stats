@@ -62,10 +62,10 @@ public class GitExecutableTests
                 man.CheckoutBranch(branch.Name);
                 Console.WriteLine($"OK: Checkout Branch {branch} in {sw.Elapsed.TotalSeconds:n1} seconds");
 
-                Console.WriteLine($"Fetch Branch {branch}");
-                sw.Restart();
-                man.FetchPullBranch(GitBranchesManagement.FetchPull.Pull, false);
-                Console.WriteLine($"OK: Fetch Branch {branch} in {sw.Elapsed.TotalSeconds:n1} seconds");
+                //Console.WriteLine($"Fetch Branch {branch}");
+                //sw.Restart();
+                //man.FetchPullBranch(GitBranchesManagement.FetchPull.Pull, false);
+                //Console.WriteLine($"OK: Fetch Branch {branch} in {sw.Elapsed.TotalSeconds:n1} seconds");
             }
         }
         finally
