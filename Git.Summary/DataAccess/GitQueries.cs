@@ -45,21 +45,30 @@ namespace Git.Summary.DataAccess
                     branch => PopulateBranchCommits(branch)
                 );
 
+                // Populating GitCommitSummary.BranchNames
+                Dictionary<string, GitCommitSummary> uniqueCommitHashes = new Dictionary<string, GitCommitSummary>(StringComparer.InvariantCultureIgnoreCase);
                 foreach (var gitBranchModel in ret.Branches)
+                foreach (var gitCommitSummary in gitBranchModel.Commits)
                 {
-                    foreach (GitCommitSummary gitCommitSummary in gitBranchModel.Commits)
-                    {
-                        gitCommitSummary.BranchNames = gitCommitSummary.BranchNames == null ? new List<string>() : gitCommitSummary.BranchNames;
-                        gitCommitSummary.BranchNames.Add(gitBranchModel.BranchName);
-                    }
+                    if (!uniqueCommitHashes.TryGetValue(gitCommitSummary.FullHash, out var uniqueCommit))
+                        uniqueCommitHashes[gitCommitSummary.FullHash] = uniqueCommit = new GitCommitSummary();
+
+                    uniqueCommit.BranchNames = gitCommitSummary.BranchNames == null ? new List<string>() : gitCommitSummary.BranchNames;
+                    uniqueCommit.BranchNames.Add(gitBranchModel.BranchName);
                 }
+
+                foreach (var gitBranchModel in ret.Branches)
+                    foreach (GitCommitSummary gitCommitSummary in gitBranchModel.Commits)
+                        if (uniqueCommitHashes.TryGetValue(gitCommitSummary.FullHash, out var uniqueCommit))
+                            gitCommitSummary.BranchNames = uniqueCommit.BranchNames;
+                // Done: Populating GitCommitSummary.BranchNames
 
                 ret.Branches = ret.Branches.OrderByDescending(x => (x.Commits?.Count).GetValueOrDefault()).ToList();
 
                 // Commit Info and Branch Name
                 var uniqueCommits = ret.Branches.SelectMany(x => x.Commits).Select(x => x.FullHash).Where(x => !string.IsNullOrEmpty(x)).Distinct().ToList();
                 var d = ParallelGitCommitDetailsQuery.Populate(uniqueCommits, gitLocalRepoFolder, ret.Errors);
-                foreach (var gitBranchModel in ret.Branches) 
+                foreach (var gitBranchModel in ret.Branches)
                 {
                     foreach (var gitCommitSummary in gitBranchModel.Commits)
                     {
