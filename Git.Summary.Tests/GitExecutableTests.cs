@@ -53,20 +53,26 @@ public class GitExecutableTests
         GitBranchesManagement man = new GitBranchesManagement(GetTestGitLocalRepoFolder());
         var baseBranch = man.GetCurrentBranch();
         var branches = man.GetStructuresRemoteBranches();
-        foreach (var branch in branches)
+        try
         {
-            Console.WriteLine($"Checkout Branch '{branch}'");
-            Stopwatch sw = Stopwatch.StartNew();
-            man.CheckoutBranch(branch.Name);
-            Console.WriteLine($"OK: Checkout Branch '{branch}' in {sw.Elapsed.TotalSeconds:n1} seconds");
+            foreach (var branch in branches)
+            {
+                Console.WriteLine($"Checkout Branch '{branch}'");
+                Stopwatch sw = Stopwatch.StartNew();
+                man.CheckoutBranch(branch.Name);
+                Console.WriteLine($"OK: Checkout Branch '{branch}' in {sw.Elapsed.TotalSeconds:n1} seconds");
 
-            Console.WriteLine($"Fetch Branch '{branch}'");
-            sw.Restart();
-            man.FetchPullBranch(GitBranchesManagement.FetchPull.Pull, false);
-            Console.WriteLine($"OK: Fetch Branch '{branch}' in {sw.Elapsed.TotalSeconds:n1} seconds");
+                Console.WriteLine($"Fetch Branch '{branch}'");
+                sw.Restart();
+                man.FetchPullBranch(GitBranchesManagement.FetchPull.Pull, false);
+                Console.WriteLine($"OK: Fetch Branch '{branch}' in {sw.Elapsed.TotalSeconds:n1} seconds");
+            }
+        }
+        finally
+        {
+            man.CheckoutBranch(baseBranch);
         }
 
-        man.CheckoutBranch(baseBranch);
         Console.WriteLine($"Remote Branches:{Environment.NewLine}{string.Join(Environment.NewLine, branches)}");
     }
 
