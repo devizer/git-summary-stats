@@ -115,6 +115,9 @@ jobs:
         # & dotnet test Git.Summary.Tests.dll 2>&1 | tee "$($ENV:GIT_TRACE_FOLDER)/Test-Output.Log"
         dotnet test Git.Summary.Tests.dll
 
+    - name: RUN Git.Summary.Tests
+      run: |
+         7z a -sdel -ms=on -mqs=on -mx=9 "${{ github.job }} for ${{ steps.run.outputs.artifact }} on ${{ matrix.VMIMAGE }}.7z"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
