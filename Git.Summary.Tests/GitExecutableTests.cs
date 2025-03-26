@@ -72,8 +72,6 @@ public class GitExecutableTests
         {
             man.CheckoutBranch(baseBranch);
         }
-
-        Console.WriteLine($"Remote Branches:{Environment.NewLine}{string.Join(Environment.NewLine, branches)}");
     }
 
     [Test]
