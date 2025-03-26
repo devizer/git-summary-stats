@@ -56,7 +56,11 @@ namespace Git.Summary.DataAccess
                     {
                         if (d.TryGetValue(gitCommitSummary.FullHash, out var found))
                         {
-                            if (!string.IsNullOrEmpty(found.Info)) gitCommitSummary.Info = found.Info;
+                            if (!string.IsNullOrEmpty(found.Info))
+                            {
+                                gitCommitSummary.Info = found.Info;
+                                ParseInfo(gitCommitSummary);
+                            }
                             gitCommitSummary.BranchName = found.BranchName;
                             gitCommitSummary.BranchNames = found.BranchNames;
                         }
@@ -80,6 +84,25 @@ namespace Git.Summary.DataAccess
                 });
             }
             return ret;
+        }
+
+        private void ParseInfo(GitCommitSummary gitCommitSummary)
+        {
+            if (string.IsNullOrEmpty(gitCommitSummary.Info)) return;
+            StringReader rdr = new StringReader(gitCommitSummary.Info);
+            string line = null;
+            string summaryChanges = null;
+            string merge = null;
+            while (true)
+            {
+                line = rdr.ReadLine();
+                if (line == null) break;
+                if (line.Length > 0) summaryChanges = line;
+                if (line.StartsWith("Merge: ") && line.Length > 7) merge = line.Substring(7);
+            }
+
+            gitCommitSummary.Merge = merge;
+            gitCommitSummary.SummaryChanges = summaryChanges;
         }
 
         public List<GitCommitSummary> GetBranchCommits(string branchName)
