@@ -34,15 +34,22 @@ namespace Git.Summary.DataAccess
             BuildErrorsHolder.Try(ret.Errors, () => ret.InitialBranch = new GitBranchesManagement(GitLocalRepoFolder).GetCurrentBranch());
             if (ret.Branches != null)
             {
-                void PopulateBranchCommits(GitBranchModel branchModel)
+                HashSet<GitBranchesManagement.HashParents> totalParents = new HashSet<GitBranchesManagement.HashParents>();
+                void PopulateBranchCommitsAndParents(GitBranchModel branchModel)
                 {
                     BuildErrorsHolder.Try(ret.Errors, () => branchModel.Commits = this.GetBranchCommits(branchModel.BranchName));
+                    BuildErrorsHolder.Try(ret.Errors, () =>
+                    {
+                        var localParents = new GitBranchesManagement(gitLocalRepoFolder).GetAllParentsForBranch(branchModel.BranchName);
+                        foreach (var localParent in localParents) totalParents.Add(localParent);
+                    });
+
                 }
 
                 Parallel.ForEach(
                     ret.Branches,
                     new ParallelLinqOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                    branch => PopulateBranchCommits(branch)
+                    branch => PopulateBranchCommitsAndParents(branch)
                 );
 
                 // Populating GitCommitSummary.BranchNames

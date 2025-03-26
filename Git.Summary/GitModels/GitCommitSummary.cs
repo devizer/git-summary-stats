@@ -15,8 +15,12 @@ public class GitCommitSummary
     [JsonIgnore]
     public List<string> BranchNames { get; set; }
     [JsonProperty("BranchNames")] 
-    public string BranchNamesDebug => BranchNames == null ? null : string.Join("|", BranchNames);
+    public string BranchNamesDebug => BranchNames == null ? null : string.Join(" | ", BranchNames);
     public string BranchName { get; set; }
+    [JsonIgnore]
+    public List<string> Parents { get; set; }
+    [JsonProperty("Parents")]
+    public string ParentsDebug => Parents == null ? null : string.Join(" | ", Parents);
     public string AuthorName { get; set; }
     public string AuthorEmail { get; set; }
     public string Info { get; set; }
