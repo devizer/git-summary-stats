@@ -63,7 +63,28 @@ namespace Git.Summary.DataAccess
                             gitCommitSummary.BranchNames = uniqueCommit.BranchNames;
                 // Done: Populating GitCommitSummary.BranchNames
 
-                ret.Branches = ret.Branches.OrderByDescending(x => (x.Commits?.Count).GetValueOrDefault()).ToList();
+                // Populating GitCommitSummary.BranchName
+                // If multiple .BranchNames than select oldest branch
+                foreach (var gitBranchModel in ret.Branches)
+                foreach (GitCommitSummary gitCommitSummary in gitBranchModel.Commits)
+                {
+                    var branchNamesCount = (gitCommitSummary.BranchNames?.Count).GetValueOrDefault();
+                    if (branchNamesCount >= 2)
+                    {
+                        var branch = gitCommitSummary.BranchNames
+                            .Select(name => ret.Branches.FirstOrDefault(b => b.BranchName == name))
+                            .Where(x => x?.OldestCommitDate.HasValue == true)
+                            .MinBy(x => x.OldestCommitDate);
+
+                        if (branch != null) gitCommitSummary.BranchName = branch.BranchName;
+                    }
+                    else if (branchNamesCount == 1)
+                    {
+                        gitCommitSummary.BranchName = gitCommitSummary.BranchNames[0];
+                    }
+                }
+
+                ret.Branches = ret.Branches.OrderByDescending(x => x.OldestCommitDate).ToList();
 
                 // Commit Info and Branch Name
                 var uniqueCommits = ret.Branches.SelectMany(x => x.Commits).Select(x => x.FullHash).Where(x => !string.IsNullOrEmpty(x)).Distinct().ToList();
