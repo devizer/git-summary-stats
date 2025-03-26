@@ -58,6 +58,7 @@ namespace Git.Summary.DataAccess
                         {
                             if (!string.IsNullOrEmpty(found.Info)) gitCommitSummary.Info = found.Info;
                             gitCommitSummary.BranchName = found.BranchName;
+                            gitCommitSummary.BranchNames = found.BranchNames;
                         }
                     }
 
