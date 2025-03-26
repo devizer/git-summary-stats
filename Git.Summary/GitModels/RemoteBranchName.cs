@@ -7,6 +7,6 @@ public class RemoteBranchName
 
     public override string ToString()
     {
-        return $"{nameof(Remote)}: '{Remote}', {nameof(Name)}: «{Name}»";
+        return $"'{Remote}'/«{Name}»";
     }
 }
