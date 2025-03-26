@@ -48,13 +48,13 @@ namespace Git.Summary.DataAccess
                         if (d.TryGetValue(gitCommitSummary.FullHash, out var found))
                         {
                             if (!string.IsNullOrEmpty(found.Info)) gitCommitSummary.Info = found.Info;
-                            if (!string.IsNullOrEmpty(found.BranchName)) gitCommitSummary.BranchName = found.BranchName;
+                            gitCommitSummary.BranchName = found.BranchName;
                         }
                     }
 
                     gitBranchModel.Commits =
                         gitBranchModel.Commits.Take(1).Concat(
-                            gitBranchModel.Commits.Skip(1).Where(x => $"$origin/{x.BranchName}" == gitBranchModel.BranchName)
+                            gitBranchModel.Commits.Skip(1).Where(x => $"$origin/{x.BranchName}" == gitBranchModel.BranchName || string.IsNullOrEmpty(x.BranchName))
                         ).ToList();
                 }
             }
