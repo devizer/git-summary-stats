@@ -111,9 +111,10 @@ namespace Git.Summary.DataAccess
 
                     var tail = gitBranchModel.Commits
                         .Skip(1)
-                        .Where(x => $"${x.BranchName}" == gitBranchModel.BranchName || string.IsNullOrEmpty(x.BranchName));
+                        .Where(commit => $"${commit.BranchName}" == gitBranchModel.BranchName || string.IsNullOrEmpty(commit.BranchName));
 
-                    // gitBranchModel.Commits = gitBranchModel.Commits.Take(1).Concat(tail).ToList();
+                    // Remove commits that belongs to parent branch
+                    gitBranchModel.Commits = gitBranchModel.Commits.Take(1).Concat(tail).ToList();
                 }
             }
 
