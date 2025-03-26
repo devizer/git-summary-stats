@@ -99,6 +99,8 @@ public class GitExecutableTests
         Console.WriteLine($"Total Unique Commits: {uniqueCommitsCount}");
         Console.WriteLine($"Memory Usage: {Process.GetCurrentProcess().WorkingSet64 / 1024:n0} KB");
 
+        var totalCommitsWithoutParents = totalCommits?.Where(x => x.Parents == null).Count();
+        Console.WriteLine($"Total commits WITHOUT PARENTS: {totalCommitsWithoutParents}");
 
         Console.WriteLine($"{Environment.NewLine}BRANCHES {summaryFull.Branches?.Count}");
         foreach (var branch in summaryFull.Branches)
