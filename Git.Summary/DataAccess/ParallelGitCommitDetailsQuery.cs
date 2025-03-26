@@ -37,13 +37,16 @@ namespace Git.Summary.DataAccess
                     result.DemandGenericSuccess($"Query branch for commit {hash} of repo '{gitLocalRepoFolder}'");
                     var branchName = result.OutputText.Trim('\r', '\n');
                     gitCommitSummary.BranchName = branchName;
-                    var debugLogMessage = $"{startAt.Elapsed} {Interlocked.Increment(ref index)} of {hashCommits.Count()} | Commit {gitCommitSummary.FullHash} Branch='{branchName}'";
 
                     if (GitTraceFiles.GitTraceFolder != null)
                     {
+                        var debugLogMessage = $"{startAt.Elapsed} {Interlocked.Increment(ref index)} of {hashCommits.Count()} | Commit {hash} Branch='{branchName}'";
                         var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Populate.log");
                         TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
-                        File.AppendAllText(traceFile, $"{debugLogMessage}{Environment.NewLine}");
+                        BuildErrorsHolder.TryTitled(errors, $"Log to {traceFile}", () =>
+                        {
+                            File.AppendAllText(traceFile, $"{debugLogMessage}{Environment.NewLine}");
+                        });
                     }
                 }
 
