@@ -13,8 +13,16 @@ namespace Git.Summary.DataAccess
 {
     public class GitQueries
     {
-        public GitSummaryReport BuildFullReport(string gitLocalRepoFolder)
+        public readonly string GitLocalRepoFolder;
+
+        public GitQueries(string gitLocalRepoFolder)
         {
+            GitLocalRepoFolder = gitLocalRepoFolder;
+        }
+
+        public GitSummaryReport BuildFullReport()
+        {
+            var gitLocalRepoFolder = GitLocalRepoFolder;
             gitLocalRepoFolder = gitLocalRepoFolder.TrimEnd(Path.DirectorySeparatorChar);
             GitSummaryReport ret = new GitSummaryReport()
             {
@@ -22,12 +30,12 @@ namespace Git.Summary.DataAccess
                 Errors = new List<string>(),
             };
             BuildErrorsHolder.Try(ret.Errors, () => ret.GitVersion = GitExecutable.GetGitVersion());
-            BuildErrorsHolder.Try(ret.Errors, () => ret.Branches = GetBranches(gitLocalRepoFolder));
+            BuildErrorsHolder.Try(ret.Errors, () => ret.Branches = GetBranches());
             if (ret.Branches != null)
             {
                 void PopulateBranchCommits(GitBranchModel branchModel)
                 {
-                    BuildErrorsHolder.Try(ret.Errors, () => branchModel.Commits = this.GetBranchCommits(gitLocalRepoFolder, branchModel.BranchName));
+                    BuildErrorsHolder.Try(ret.Errors, () => branchModel.Commits = this.GetBranchCommits(branchModel.BranchName));
                 }
 
                 Parallel.ForEach(
@@ -71,8 +79,9 @@ namespace Git.Summary.DataAccess
             return ret;
         }
 
-        public List<GitCommitSummary> GetBranchCommits(string gitLocalRepoFolder, string branchName)
+        public List<GitCommitSummary> GetBranchCommits(string branchName)
         {
+            var gitLocalRepoFolder = GitLocalRepoFolder;
             gitLocalRepoFolder = gitLocalRepoFolder.TrimEnd(Path.DirectorySeparatorChar);
             var b = string.IsNullOrEmpty(branchName?.Trim()) ? "" : $"{branchName} ";
             string args = $"log {b}--date=format:\"%a %Y-%m-%d %H:%M:%S %z\" --pretty=\"format:%H │ %cd │ %aD │ %aI │ %an │ %ae \"";
@@ -116,31 +125,10 @@ namespace Git.Summary.DataAccess
             return ret;
         }
 
-        public List<GitBranchModel> GetBranches(string gitLocalRepoFolder)
+        public List<GitBranchModel> GetBranches()
         {
-            gitLocalRepoFolder = gitLocalRepoFolder.TrimEnd(Path.DirectorySeparatorChar);
-            // git branch --no-color --no-column --format "%(refname:lstrip=2)" -r
-            var args = "branch --no-color --no-column --format \"%(refname:lstrip=2)\" -r";
-            var result = ExecProcessHelper.HiddenExec(GitExecutable.GetGitExecutable(), args, gitLocalRepoFolder);
-            if (GitTraceFiles.GitTraceFolder != null)
-            {
-                var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Branches.txt");
-                TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
-                File.WriteAllText(traceFile, result.OutputText);
-            }
-
-            result.DemandGenericSuccess($"Query git branches for {gitLocalRepoFolder}");
-
-            var isNotHead = (string raw) =>
-            {
-                var arr = raw.Split('/');
-                return !(arr.Length == 2 && arr[1] == "HEAD");
-            };
-
-            var branchNames = result.OutputText.Split('\r', '\n')
-                .Where(x => x.Length != 0)
-                .Where(x => isNotHead(x));
-
+            GitBranchesManagement man = new GitBranchesManagement(GitLocalRepoFolder);
+            var branchNames = man.GetRemoteBranchNames();
             List<GitBranchModel> ret = branchNames.Select(x => new GitBranchModel() { BranchName = x }).ToList();
             return ret;
         }

@@ -19,10 +19,64 @@ public class GitExecutableTests
     [Test]
     [TestCase("First")]
     [TestCase("Next")]
-    public void B_TestRawSummary(string testCase)
+    public void B_ShowCurrentBranch(string testCase)
     {
-        GitQueries queries = new GitQueries();
-        var summary1 = queries.GetBranchCommits(GetTestGitLocalRepoFolder(), null);
+        GitBranchesManagement man = new GitBranchesManagement(GetTestGitLocalRepoFolder());
+        Console.WriteLine($"Current Branch: '{man.GetCurrentBranch()}'");
+    }
+
+    [Test]
+    [TestCase("First")]
+    [TestCase("Next")]
+    public void C1_ShowRemoteBranches(string testCase)
+    {
+        GitBranchesManagement man = new GitBranchesManagement(GetTestGitLocalRepoFolder());
+        var branches = man.GetRemoteBranchNames();
+        Console.WriteLine($"Remote Branches:{Environment.NewLine}{string.Join(Environment.NewLine, branches.OrderBy(x => x))}");
+    }
+
+    [Test]
+    [TestCase("First")]
+    [TestCase("Next")]
+    public void C2_ShowStructuredRemoteBranches(string testCase)
+    {
+        GitBranchesManagement man = new GitBranchesManagement(GetTestGitLocalRepoFolder());
+        var branches = man.GetStructuresRemoteBranches();
+        Console.WriteLine($"Remote Branches:{Environment.NewLine}{string.Join(Environment.NewLine, branches.OrderBy(x => x.Name))}");
+    }
+
+    [Test]
+    [TestCase("First")]
+    [TestCase("Next")]
+    public void D_FetchRemoteBranches(string testCase)
+    {
+        GitBranchesManagement man = new GitBranchesManagement(GetTestGitLocalRepoFolder());
+        var baseBranch = man.GetCurrentBranch();
+        var branches = man.GetStructuresRemoteBranches();
+        foreach (var branch in branches)
+        {
+            Console.WriteLine($"Checkout Branch '{branch}'");
+            Stopwatch sw = Stopwatch.StartNew();
+            man.CheckoutBranch(branch.Name);
+            Console.WriteLine($"OK: Checkout Branch '{branch}' in {sw.Elapsed.TotalSeconds:n1} seconds");
+
+            Console.WriteLine($"Fetch Branch '{branch}'");
+            sw.Restart();
+            man.FetchPullBranch(GitBranchesManagement.FetchPull.Pull, false);
+            Console.WriteLine($"OK: Fetch Branch '{branch}' in {sw.Elapsed.TotalSeconds:n1} seconds");
+        }
+
+        man.CheckoutBranch(baseBranch);
+        Console.WriteLine($"Remote Branches:{Environment.NewLine}{string.Join(Environment.NewLine, branches)}");
+    }
+
+    [Test]
+    [TestCase("First")]
+    [TestCase("Next")]
+    public void E_TestRawSummary(string testCase)
+    {
+        GitQueries queries = new GitQueries(GetTestGitLocalRepoFolder());
+        var summary1 = queries.GetBranchCommits(null);
         Console.WriteLine($"Total Commits for default branch: {summary1.Count}");
 #if DEBUG
         Console.WriteLine(summary1.ToJsonString());
@@ -30,10 +84,10 @@ public class GitExecutableTests
     }
 
     [Test]
-    public void TestFullReport()
+    public void E_TestFullReport()
     {
-        GitQueries queries = new GitQueries();
-        var summaryFull = queries.BuildFullReport(GetTestGitLocalRepoFolder());
+        GitQueries queries = new GitQueries(GetTestGitLocalRepoFolder());
+        var summaryFull = queries.BuildFullReport();
         var totalCommits = summaryFull.Branches?.SelectMany(x => x.Commits);
         var commitsCount = totalCommits?.Count();
         var uniqueCommitsCount = totalCommits?.Select(x => x.FullHash).Distinct().Count();
