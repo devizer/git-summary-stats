@@ -65,7 +65,7 @@ namespace Git.Summary.DataAccess
                         .Skip(1)
                         .Where(x => $"${x.BranchName}" == gitBranchModel.BranchName || string.IsNullOrEmpty(x.BranchName));
 
-                    gitBranchModel.Commits = gitBranchModel.Commits.Take(1).Concat(tail).ToList();
+                    // gitBranchModel.Commits = gitBranchModel.Commits.Take(1).Concat(tail).ToList();
                 }
             }
 
