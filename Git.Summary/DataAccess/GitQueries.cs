@@ -34,6 +34,7 @@ namespace Git.Summary.DataAccess
             BuildErrorsHolder.Try(ret.Errors, () => ret.InitialBranch = new GitBranchesManagement(GitLocalRepoFolder).GetCurrentBranch());
             if (ret.Branches != null)
             {
+                // TOTAL BRANCHES: Parents
                 HashSet<GitBranchesManagement.HashParents> totalParents = new HashSet<GitBranchesManagement.HashParents>();
                 void PopulateBranchCommitsAndParents(GitBranchModel branchModel)
                 {

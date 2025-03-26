@@ -18,7 +18,7 @@ public static class BuildErrorsHolder
         }
         catch (Exception ex)
         {
-            var exceptionDigest = ex.GetExceptionDigest();
+            var exceptionDigest = ex.GetExceptionDigest() + Environment.NewLine + ex;
             lock (SyncErrors)
                 errors.Add(exceptionDigest);
         }
@@ -32,7 +32,7 @@ public static class BuildErrorsHolder
         catch (Exception ex)
         {
             var exception = new InvalidOperationException($"{title} failed", ex);
-            var exceptionDigest = exception.GetExceptionDigest();
+            var exceptionDigest = exception.GetExceptionDigest() + Environment.NewLine + exception;
             lock(SyncErrors)
                 errors.Add(exceptionDigest);
         }
