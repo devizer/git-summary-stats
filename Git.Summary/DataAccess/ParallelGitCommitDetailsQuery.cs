@@ -35,12 +35,14 @@ namespace Git.Summary.DataAccess
                     var args = $"branch --no-color --no-column --format \"%(refname:lstrip=2)\" --contains {hash}";
                     var result = ExecProcessHelper.HiddenExec(GitExecutable.GetGitExecutable(), args, gitLocalRepoFolder);
                     result.DemandGenericSuccess($"Query branch for commit {hash} of repo '{gitLocalRepoFolder}'");
-                    var branchName = result.OutputText.Trim('\r', '\n');
-                    gitCommitSummary.BranchName = branchName;
+                    var commitBranchNames = result.OutputText.Split('\r', '\n').Where(x => x.Length > 0).ToList();
+                    // TODO: SKIP Commit if it belongs to main/master
+                    gitCommitSummary.BranchName = commitBranchNames.FirstOrDefault();
+                    gitCommitSummary.BranchNames = string.Join(";", commitBranchNames);
 
                     if (GitTraceFiles.GitTraceFolder != null)
                     {
-                        var debugLogMessage = $"{startAt.Elapsed} {Interlocked.Increment(ref index)} of {hashCommits.Count()} | Commit {hash} Branch='{branchName}'";
+                        var debugLogMessage = $"{startAt.Elapsed} {Interlocked.Increment(ref index)} of {hashCommits.Count()} | Commit {hash} Branch='{commitBranchNames}'";
                         var traceFile = Path.Combine(GitTraceFiles.GitTraceFolder, Path.GetFileName(gitLocalRepoFolder), "Populate.log");
                         TryAndForget.Execute(() => Directory.CreateDirectory(Path.GetDirectoryName(traceFile)));
                         BuildErrorsHolder.TryTitled(errors, $"Log to {traceFile}", () =>
