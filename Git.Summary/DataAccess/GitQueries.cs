@@ -119,8 +119,8 @@ namespace Git.Summary.DataAccess
                         .Skip(1)
                         .Where(commit => commit.BranchName == gitBranchModel.BranchName || string.IsNullOrEmpty(commit.BranchName));
 
-                    // Remove commits that belongs to parent branch
-                    gitBranchModel.Commits = gitBranchModel.Commits.Take(1).Concat(tail).ToList();
+                    // Can't Remove commits that belongs to parent branch
+                    // gitBranchModel.Commits = gitBranchModel.Commits.Take(1).Concat(tail).ToList();
                 }
             }
 
