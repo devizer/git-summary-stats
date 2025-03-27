@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -35,14 +36,14 @@ namespace Git.Summary.DataAccess
             if (ret.Branches != null)
             {
                 // TOTAL BRANCHES: Parents
-                HashSet<GitBranchesManagement.HashParents> totalParents = new HashSet<GitBranchesManagement.HashParents>(GitBranchesManagement.HashParents.HashComparer);
+                ConcurrentDictionary<string,GitBranchesManagement.HashParents> totalParents = new ConcurrentDictionary<string, GitBranchesManagement.HashParents>(StringComparer.InvariantCultureIgnoreCase);
                 void PopulateBranchCommitsAndParents(GitBranchModel branchModel)
                 {
                     BuildErrorsHolder.Try(ret.Errors, () => branchModel.Commits = this.GetBranchCommits(branchModel.BranchName));
                     BuildErrorsHolder.Try(ret.Errors, () =>
                     {
                         var localParents = new GitBranchesManagement(gitLocalRepoFolder).GetAllParentsForBranch(branchModel.BranchName);
-                        foreach (var localParent in localParents) totalParents.Add(localParent);
+                        foreach (var localParent in localParents) totalParents[localParent.Hash] = localParent;
                     });
                 }
 
@@ -56,8 +57,7 @@ namespace Git.Summary.DataAccess
                 foreach (var gitBranchModel in ret.Branches)
                 foreach (var gitCommitSummary in gitBranchModel.Commits)
                 {
-                    GitBranchesManagement.HashParents key = new GitBranchesManagement.HashParents() { Hash = gitCommitSummary.FullHash };
-                    if (totalParents.TryGetValue(key, out var parents))
+                    if (totalParents.TryGetValue(gitCommitSummary.FullHash, out var parents))
                         gitCommitSummary.Parents = parents.Parents;
                 }
 
